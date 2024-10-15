@@ -1,5 +1,5 @@
 import express, { Application, Router } from "express";
-import { BrowserLogger, ILogger } from 'swizzy-common';
+import { BrowserLogger, ILogger } from '@swizzyweb/swizzy-common';
 
 export const DEFAULT_PORT_NUMBER = 3000;
 

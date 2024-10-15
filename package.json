@@ -1,5 +1,5 @@
 {
-  "name": "swizzy-web-service",
+  "name": "@swizzyweb/swizzy-web-service",
   "version": "0.1.0",
   "description": "",
   "main": "dist/index.js",
@@ -16,7 +16,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "express": "file:../express",
-    "swizzy-common": "file:../SwizzyCommon"
+    "@swizzyweb/express": "^4.19.2",
+    "@swizzyweb/swizzy-common": "^0.1.0"
   }
 }
