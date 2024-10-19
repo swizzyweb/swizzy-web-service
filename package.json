@@ -6,6 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "clean": "rm -rf ./dist ./node_modules",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "WannaWatchMeCode",
@@ -13,10 +14,12 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^20.12.8",
+    "@types/tcp-port-used": "^1.0.4",
     "typescript": "^5.4.5"
   },
   "dependencies": {
     "@swizzyweb/express": "^4.19.2",
-    "@swizzyweb/swizzy-common": "^0.1.0"
+    "@swizzyweb/swizzy-common": "^0.1.0",
+    "tcp-port-used": "^1.0.2"
   }
 }

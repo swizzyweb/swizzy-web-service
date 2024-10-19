@@ -1,12 +1,14 @@
-import express, { Application, Router } from "express";
-import { BrowserLogger, ILogger } from '@swizzyweb/swizzy-common';
+import { BrowserLogger, ILogger} from '@swizzyweb/swizzy-common';
+import { isPortInUse } from './util/port-checker';
+// @ts-ignore
+import express, { Application, Router } from "@swizzyweb/express";
 
 export const DEFAULT_PORT_NUMBER = 3000;
 
 export interface IRunResult {}
 
 export interface IRunProps {
-  app: Application;
+  //app: Application;
 }
 
 export interface IWebService {
@@ -21,8 +23,17 @@ export interface ServerInitializationProps {
 }
 
 export interface IWebServiceProps {
-  app: Application;
-  port: number;
+/**
+	* Attach to existing app managed externally.
+	* The web service will not start the listener or specify port for the express app
+	* if this is specified. If specified you cannot specify the port parameter.
+	*/
+	app?: Application;
+	/**
+		* Only specify if app is not specified, this will create a new Express app instance
+	* listening on this port once installed.
+		*/
+  port?: number;
   logger?: ILogger;
   routers?: Router[]
 }
@@ -32,40 +43,83 @@ export abstract class WebService implements IWebService {
   protected _isInstalled: boolean;
   protected _logger: ILogger;
   protected routers: Router[];
-
+  protected app?: Application;
+  protected port?: number;
+  protected server?: any; // TODO: figure out type for express.listen
   constructor(props: IWebServiceProps) {
-    this._isInstalled = false;
+    if (props.app && props.port) {
+		throw new Error(`You can only provide 1 of port or a externally managed app parameter`);
+	}
+
+	if (!props.app && !props.port) {
+		throw new Error(`You must specify 1 of app or port`);
+	}
+	
+	this._isInstalled = false;
     this._logger = props.logger??new BrowserLogger();
     this.routers = props.routers!;
+	this.app = props.app;
+	this.port = props.port;
   }
 
-  install(props: IRunProps): Promise<IRunResult> {
-    const { app } = props;
+  async install(props: IRunProps): Promise<IRunResult> {
+    //const { app } = props;
+	
+	//const app = this.app;
     const logger = this._logger;
     logger.info(`Installing web service ${this.name}`);
     if(this._isInstalled) {
       logger.error(`Service ${this.name} is already installed`);
       return Promise.reject({message: `Service ${this.name} is already installed`});
     }
-    
+
+	if (!this.app) {
+		if (!this.port) {
+			throw new Error(`Port or app must exist`); // This should never happen
+		}
+		
+		logger.info(`Initializing app for ${this.name}`);
+		this.app = express();
+		logger.info(`Initialized app for ${this.name}`);
+
+	}
+ 		logger.debug(`app: ${this.app}`);   
     try {
       // install middleware
       // this.installMiddleware(app);
       logger.info(`Installing routers for ${this.name}`);
-      this.installRouters(app);
+      this.installRouters();
       logger.info(`Installed routers for ${this.name}`);
       // install routers
-      this._isInstalled = true;
+     
+	if (this.port) {
+		const portInUse = await isPortInUse(this.port, 'localhost');
+		if (portInUse) {
+			throw new Error(`Port ${this.port} is already in use`);
+		}
+
+	  	this.server = this.app.listen(this.port, () => {
+			logger.info(`${this.name} running on port ${this.port}`);
+		})
+		/*this.server.on('error', (err: any) => {
+			if (err.code === 'EADDRINUSE') {
+				logger.error(`Error occurred when attempting to start server for service ${this.name} ${err}`);
+			}
+		});*/
+	  }
+
+	  this._isInstalled = true;
       logger.info(`Installed ${this.name} successfully`);
+
       return Promise.resolve({message: `WebService ${this.name} installed successfully`});
     } catch (e) {
       logger.error(`Failed to install ${this.name} with error ${e}`);
-      return Promise.reject({message: `WebServie ${this.name} failed to install`,exception: e});
+      return Promise.reject({message: `WebService ${this.name} failed to install`,exception: e});
     }
   }
 
   uninstall(props: IRunProps): Promise<any> {
-    const { app } = props;
+    //const { app } = props;
     const logger = this._logger;
     try {
       
@@ -74,10 +128,24 @@ export abstract class WebService implements IWebService {
         logger.error(`Unable to uninstall ${this.name} as it is not installed`);
         return Promise.reject({message: `Failed to uninstall non installed service ${this.name}`});
       }
-
+		
       logger.info(`Uninstalling routters for ${this.name}`);
-      this.uninstallRouters(app);
+      this.uninstallRouters(this.app);
       logger.info(`Uninstalled routers for ${this.name}`);
+
+	  if (this.server) {
+	  	logger.info(`Stopping server for ${this.name}`);
+		this.server.close(() => {
+			logger.info(`Closed server for ${this.name}`);
+			logger.info(`Deleting server for ${this.name}`)
+		delete this.server;
+		logger.info(`Deleted server for ${this.name}`);
+
+		});
+	  } else {
+		logger.info(`App managed externally, skipping stopping server for ${this.name}`);
+	  }
+	  
       this._isInstalled = false;
       
       logger.info(`Uninstalled ${this.name}`);
@@ -93,14 +161,15 @@ export abstract class WebService implements IWebService {
     return this._isInstalled;
   }
 
-  protected installRouters(app: Application): Promise<any> {
+  protected installRouters(): Promise<any> {
     let logger = this._logger;
     if(this._isInstalled) {
       logger.error(`Service ${this.name} is already installed, cannot install routers`)
       return Promise.reject({message: `Service ${this.name} is already installed, cannot install routers`});
     }
     this.routers.forEach((router) => {
-      app.use(router);
+    	logger.info("Installing router using use");
+      this.app.use(router);
     });
 
     return Promise.resolve({message: `Routers installed for Service ${this.name}`});
