@@ -1,7 +1,7 @@
 {
   "name": "@swizzyweb/swizzy-web-service",
   "version": "0.1.0",
-  "description": "",
+  "description": "Web service framework for swizzy dyn serve",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -21,5 +21,20 @@
     "@swizzyweb/express": "^4.19.2",
     "@swizzyweb/swizzy-common": "^0.1.0",
     "tcp-port-used": "^1.0.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swizzyweb/SwizzyWebService.git"
+  },
+  "keywords": [
+    "swizzy",
+    "web",
+    "service",
+    "dyn",
+    "serve"
+  ],
+  "bugs": {
+    "url": "https://github.com/swizzyweb/SwizzyWebService/issues"
+  },
+  "homepage": "https://github.com/swizzyweb/SwizzyWebService#readme"
 }
