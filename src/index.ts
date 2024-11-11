@@ -1,1 +1,1 @@
-export * from './web-service';
+export * from "./web-service";
