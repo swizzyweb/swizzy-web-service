@@ -27,5 +27,6 @@ export interface IWebServiceProps {
   routers?: Router[];
   appDataRoot?: string;
   serviceArgs?: any;
+  state?: any;
 }
 
