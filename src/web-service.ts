@@ -4,6 +4,7 @@ import { isPortInUse } from "./util/port-checker";
 import express, { Application, Router, Request, Response } from "@swizzyweb/express";
 import { getAppDataPathFromProps,  getAppDataPathFromPropsAndInitialize } from './util/app-data-helper';
 import { IWebServiceProps } from './web-service-props';
+import { IWebRouter, WebRouter } from './web-router';
 
 export const DEFAULT_PORT_NUMBER = 3000;
 
@@ -33,14 +34,6 @@ export abstract class WebService implements IWebService {
   protected appDataPath: string;
   protected state?: any;
   constructor(props: IWebServiceProps) {
-    /*if (props.app && props.port) {
-		throw new Error(`You can only provide 1 of port or a externally managed app parameter`);
-	}
-
-	if (!props.app && !props.port) {
-		throw new Error(`You must specify 1 of app or port`);
-	}*/
-
     this._isInstalled = false;
     this._logger = props.logger ?? new BrowserLogger();
     this.routers = props.routers!;
@@ -48,16 +41,11 @@ export abstract class WebService implements IWebService {
     this.port = props.port;
     this.packageName = props.packageName;
     this.appDataPath = getAppDataPathFromPropsAndInitialize(props);
+    this.state = props.state;
 
-    //this.app[props.packageName] = {
-     // state: {}
-    //}
   }
 
   async install(props: IRunProps): Promise<IRunResult> {
-    //const { app } = props;
-
-    //const app = this.app;
     const logger = this._logger;
     logger.info(`Installing web service ${this.name}`);
     if (this._isInstalled) {
@@ -67,36 +55,10 @@ export abstract class WebService implements IWebService {
       });
     }
 
-    /*if (!this.app) {
-		if (!this.port) {
-			throw new Error(`Port or app must exist`); // This should never happen
-		}
-		
-		logger.info(`Initializing app for ${this.name}`);
-		this.app = express();
-		logger.info(`Initialized app for ${this.name}`);
-
-	}
- 		logger.debug(`app: ${this.app}`);   */
     try {
-      // install middleware
-      // this.installMiddleware(app);
       logger.info(`Installing routers for ${this.name}`);
       this.installRouters();
       logger.info(`Installed routers for ${this.name}`);
-      // install routers
-
-      /*if (this.port) {
-		const portInUse = await isPortInUse(this.port, 'localhost');
-		if (portInUse) {
-			throw new Error(`Port ${this.port} is already in use`);
-		}
-
-	  	this.server = this.app.listen(this.port, () => {
-			logger.info(`${this.name} running on port ${this.port}`);
-		})
-	  }*/
-
       this._isInstalled = true;
       logger.info(`Installed ${this.name} successfully`);
 
@@ -104,7 +66,7 @@ export abstract class WebService implements IWebService {
         message: `WebService ${this.name} installed successfully`,
       });
     } catch (e) {
-      logger.error(`Failed to install ${this.name} with error ${e}`);
+      logger.error(`Failed to install ${this.name} with error ${JSON.stringify(e)}`);
       return Promise.reject({
         message: `WebService ${this.name} failed to install`,
         exception: e,
@@ -127,20 +89,6 @@ export abstract class WebService implements IWebService {
       logger.info(`Uninstalling routers for ${this.name}`);
       this.uninstallRouters(this.app);
       logger.info(`Uninstalled routers for ${this.name}`);
-      /*
-	  if (this.server) {
-	  	logger.info(`Stopping server for ${this.name}`);
-		this.server.close(() => {
-			logger.info(`Closed server for ${this.name}`);
-			logger.info(`Deleting server for ${this.name}`)
-		delete this.server;
-		logger.info(`Deleted server for ${this.name}`);
-
-		});
-	  } else {
-		logger.info(`App managed externally, skipping stopping server for ${this.name}`);
-	  }
-	  */
       this._isInstalled = false;
 
       logger.info(`Uninstalled ${this.name}`);
@@ -172,10 +120,14 @@ export abstract class WebService implements IWebService {
       });
     }
     const state = this.getState();
-    this.routers.forEach((router) => {
+    this.routers.forEach(async (router) => {
        this.addMiddleware(router); 
-logger.info("Installing router using use");
-      this.app.use(router);
+      //logger.info("Installing router using use");
+      // I think I can pull this out into an install router method.
+      // There we can determine router type and Override
+      // install logic.
+      //this.app.use(router);
+      await this.installRouter(router);
     });
 
     return Promise.resolve({
@@ -195,6 +147,7 @@ logger.info("Installing router using use");
     }
 
     this.routers.forEach((router) => {
+      // TODO: update
       // @ts-ignore
       app.unuse(router);
     });
@@ -208,10 +161,46 @@ logger.info("Installing router using use");
 * Override to inject state in subclasses
 * */
   protected getState(): any {
-    return {};
+    return this.state;
   }
 
+  async installRouter(router: Router[] | IWebRouter<any, any>[]): Promise<void> {
+      // TODO: since we can't check if it implements
+    // the base interface, we check the base impl.
+    // If we add more impls, we will need to check them here.
+    // We could do something like [typeof WebRouter, typeof SomeOtherImpl]
+    // .includes(typeof router)...
+    if (router instanceof WebRouter) {
+      await this.installWebRouter(router);
+      return;
+    }
 
+    if (typeof router === typeof Router) {
+      this.installExpressRouter(router);
+      return;
+    }
+
+    throw {name: "InvalidRouterForInstall",
+      message: `The provided router is invalid for installation on web service: ${this.name}`,
+      webService: this.name,
+      routerType: typeof router,
+    }; // TODO: create actual type
+  }
+
+  private async installWebRouter(router: IWebRouter<any, any>): Promise<void> {
+    await router.initialize({globalState: this.state});
+    this.app.use(router.router());
+  }
+
+  private installExpressRouter(router: Router) {
+    const logger = this._logger;
+    logger.info("Installing router using use");
+      // I think I can pull this out into an install router method.
+      // There we can determine router type and Override
+      // install logic.
+      this.app.use(router);
+
+  }
 
     /**
 *     Does nothing by default
@@ -220,30 +209,4 @@ logger.info("Installing router using use");
       
     }
 }
-/*
-function _getCallerFile() {
-    var filename;
 
-    var _pst = Error.prepareStackTrace
-    Error.prepareStackTrace = function (err, stack) { return stack; };
-    try {
-        var err = new Error();
-        var callerfile;
-        var currentfile;
-
-        currentfile = err.stack.shift().getFileName();
-
-        while (err.stack.length) {
-            callerfile = err.stack.shift().getFileName();
-
-            if(currentfile !== callerfile) {
-                filename = callerfile;
-                break;
-            }
-        }
-    } catch (err) {}
-    Error.prepareStackTrace = _pst;
-
-    return filename;
-}
-*/
