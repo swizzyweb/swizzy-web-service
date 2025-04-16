@@ -1,10 +1,16 @@
 import { BrowserLogger, ILogger } from "@swizzyweb/swizzy-common";
-import { isPortInUse } from "./util/port-checker";
-// @ts-ignore
-import express, { Application, Router, Request, Response } from "@swizzyweb/express";
-import { getAppDataPathFromProps,  getAppDataPathFromPropsAndInitialize } from './util/app-data-helper';
-import { IWebServiceProps } from './web-service-props';
-import { IWebRouter, WebRouter } from './web-router';
+
+import {
+  Application,
+  Router,
+  // @ts-ignore
+} from "@swizzyweb/express";
+
+import { getAppDataPathFromPropsAndInitialize } from "./util/app-data-helper";
+import { IWebServiceProps } from "./web-service-props";
+import { SwizzyWebRouterClass } from "./web-router";
+import { Logger } from "winston";
+import { SwizzyWinstonLogger } from "./util/logger";
 
 export const DEFAULT_PORT_NUMBER = 3000;
 
@@ -21,60 +27,75 @@ export interface IWebService {
   isInstalled(): boolean;
 }
 
-
-export abstract class WebService implements IWebService {
+export abstract class WebService<GLOBAL_STATE> implements IWebService {
   abstract readonly name: string;
   protected packageName: string;
   protected _isInstalled: boolean;
-  protected _logger: ILogger;
+  protected _logger: ILogger<any>;
+  /**
+   * @deprecated Use routerClasses install
+   */
   protected routers: Router[];
   protected app?: Application;
+  protected routerClasses: SwizzyWebRouterClass<GLOBAL_STATE, any>[];
   protected port?: number;
   protected server?: any; // TODO: figure out type for express.listen
   protected appDataPath: string;
-  protected state?: any;
-  constructor(props: IWebServiceProps) {
+  protected state: GLOBAL_STATE;
+  protected _installedRouters: Router[];
+
+  constructor(props: IWebServiceProps<GLOBAL_STATE>) {
     this._isInstalled = false;
     this._logger = props.logger ?? new BrowserLogger();
-    this.routers = props.routers!;
+    this.routers = props.routers ?? []; // TODO: remove
+    this.routerClasses = props.routerClasses ?? []; // TODO: make required
     this.app = props.app;
     this.port = props.port;
     this.packageName = props.packageName;
     this.appDataPath = getAppDataPathFromPropsAndInitialize(props);
-    this.state = props.state;
-
+    this.state = props.state ?? ({} as GLOBAL_STATE);
+    this._installedRouters = [];
   }
 
   async install(props: IRunProps): Promise<IRunResult> {
+    if (this._logger.getLoggerProps().ownerName !== this.name) {
+      this._logger = this._logger.clone({
+        ownerName: this.name,
+      });
+      this._logger.info(`Initialized router for ${this.name}`);
+    }
     const logger = this._logger;
     logger.info(`Installing web service ${this.name}`);
     if (this._isInstalled) {
       logger.error(`Service ${this.name} is already installed`);
       return Promise.reject({
         message: `Service ${this.name} is already installed`,
+        stack: new Error(`Service ${this.name} is already installed`).stack,
       });
     }
 
     try {
       logger.info(`Installing routers for ${this.name}`);
-      this.installRouters();
+      await this.installRouters();
       logger.info(`Installed routers for ${this.name}`);
       this._isInstalled = true;
       logger.info(`Installed ${this.name} successfully`);
 
-      return Promise.resolve({
+      return {
         message: `WebService ${this.name} installed successfully`,
-      });
+      };
     } catch (e) {
-      logger.error(`Failed to install ${this.name} with error ${JSON.stringify(e)}`);
-      return Promise.reject({
+      logger.error(
+        `Failed to install ${this.name} with error ${JSON.stringify(e)}`,
+      );
+      throw {
         message: `WebService ${this.name} failed to install`,
         exception: e,
-      });
+      };
     }
   }
 
-  uninstall(props: IRunProps): Promise<any> {
+  async uninstall(props: IRunProps): Promise<any> {
     //const { app } = props;
     const logger = this._logger;
     try {
@@ -87,7 +108,7 @@ export abstract class WebService implements IWebService {
       }
 
       logger.info(`Uninstalling routers for ${this.name}`);
-      this.uninstallRouters(this.app);
+      await this.uninstallRouters(this.app);
       logger.info(`Uninstalled routers for ${this.name}`);
       this._isInstalled = false;
 
@@ -109,7 +130,7 @@ export abstract class WebService implements IWebService {
     return this._isInstalled;
   }
 
-  protected installRouters(): Promise<any> {
+  protected async installRouters(): Promise<any> {
     let logger = this._logger;
     if (this._isInstalled) {
       logger.error(
@@ -119,14 +140,12 @@ export abstract class WebService implements IWebService {
         message: `Service ${this.name} is already installed, cannot install routers`,
       });
     }
-    const state = this.getState();
-    this.routers.forEach(async (router) => {
-       this.addMiddleware(router); 
-      //logger.info("Installing router using use");
-      // I think I can pull this out into an install router method.
-      // There we can determine router type and Override
-      // install logic.
-      //this.app.use(router);
+
+    await this.routers.forEach(async (router) => {
+      await this.installRouter(router);
+    });
+
+    await this.routerClasses.forEach(async (router) => {
       await this.installRouter(router);
     });
 
@@ -146,11 +165,12 @@ export abstract class WebService implements IWebService {
       });
     }
 
-    this.routers.forEach((router) => {
+    while (this._installedRouters.length > 0) {
+      let router = this._installedRouters.pop();
       // TODO: update
       // @ts-ignore
       app.unuse(router);
-    });
+    }
 
     return Promise.resolve({
       message: `Uninstalled routers for Service ${this.name}`,
@@ -158,19 +178,15 @@ export abstract class WebService implements IWebService {
   }
 
   /**
-* Override to inject state in subclasses
-* */
-  protected getState(): any {
+   * Override to inject state in subclasses
+   * */
+  protected getState(): GLOBAL_STATE {
     return this.state;
   }
-
-  async installRouter(router: Router[] | IWebRouter<any, any>[]): Promise<void> {
-      // TODO: since we can't check if it implements
-    // the base interface, we check the base impl.
-    // If we add more impls, we will need to check them here.
-    // We could do something like [typeof WebRouter, typeof SomeOtherImpl]
-    // .includes(typeof router)...
-    if (router instanceof WebRouter) {
+  async installRouter(
+    router: Router | SwizzyWebRouterClass<GLOBAL_STATE, any>,
+  ): Promise<void> {
+    if (router.isWebRouter ?? false) {
       await this.installWebRouter(router);
       return;
     }
@@ -180,33 +196,47 @@ export abstract class WebService implements IWebService {
       return;
     }
 
-    throw {name: "InvalidRouterForInstall",
+    throw {
+      name: "InvalidRouterForInstall",
       message: `The provided router is invalid for installation on web service: ${this.name}`,
       webService: this.name,
       routerType: typeof router,
+      stack: new Error(
+        `The provided router is invalid for installation on web service: ${this.name}`,
+      ).stack,
     }; // TODO: create actual type
   }
 
-  private async installWebRouter(router: IWebRouter<any, any>): Promise<void> {
-    await router.initialize({globalState: this.state});
-    this.app.use(router.router());
+  private async installWebRouter(
+    router: SwizzyWebRouterClass<any, any>,
+  ): Promise<void> {
+    this._logger.info("Hit installWebRouter");
+    const instance = new router({
+      state: this.getState(),
+      logger: this._logger.clone({ ownerName: router.name }),
+    });
+    await instance.initialize({
+      globalState: this.getState(),
+    });
+    //await router.initialize({ globalState: this.state });
+    const expressRouter = await instance.router();
+    this.app.use(expressRouter);
+    this._installedRouters.push(expressRouter);
   }
 
   private installExpressRouter(router: Router) {
     const logger = this._logger;
     logger.info("Installing router using use");
-      // I think I can pull this out into an install router method.
-      // There we can determine router type and Override
-      // install logic.
-      this.app.use(router);
-
+    // I think I can pull this out into an install router method.
+    // There we can determine router type and Override
+    // install logic.
+    this.app.use(router);
+    this._installedRouters.push(router);
   }
 
-    /**
-*     Does nothing by default
-* */
-    protected addMiddleware(router: Router): void {
-      
-    }
+  /**
+   * @deprecated
+   *     Does nothing by default
+   */
+  protected addMiddleware(router: Router): void {}
 }
-

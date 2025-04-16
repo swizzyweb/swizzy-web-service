@@ -1,13 +1,13 @@
-
 // @ts-ignore
 import express, { Application, Router } from "@swizzyweb/express";
 import { ILogger } from "@swizzyweb/swizzy-common";
+import { SwizzyWebRouterClass } from "./web-router";
 
 export interface ServerInitializationProps {
   port?: number; // If port undefined, skip listening, assume already listening
 }
 
-export interface IWebServiceProps {
+export interface IWebServiceProps<GLOBAL_STATE> {
   /**
    * nodejs package name as found in package.json
    */
@@ -23,10 +23,17 @@ export interface IWebServiceProps {
    * listening on this port once installed.
    */
   port?: number;
-  logger?: ILogger;
+  logger?: ILogger<any>;
+  /**
+   * @deprecated Use routerClasses instead
+   */
   routers?: Router[];
+  /**
+   * Router classes to be intialized
+   * Use this insead of routers
+   */
+  routerClasses?: SwizzyWebRouterClass<GLOBAL_STATE, any>[];
   appDataRoot?: string;
   serviceArgs?: any;
-  state?: any;
+  state?: GLOBAL_STATE;
 }
-

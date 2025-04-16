@@ -1,20 +1,22 @@
 import path from "path";
 import fs from "fs";
-import { IWebServiceProps } from '../web-service-props';
+import { IWebServiceProps } from "../web-service-props";
 
-export function getAppDataPathFromPropsAndInitialize(props: IWebServiceProps) {
- const appDataPath =  getAppDataPathFromProps(props);
-fs.mkdirSync(appDataPath, {recursive: true});
-return appDataPath;
+export function getAppDataPathFromPropsAndInitialize(
+  props: IWebServiceProps<any>,
+) {
+  const appDataPath = getAppDataPathFromProps(props);
+  fs.mkdirSync(appDataPath, { recursive: true });
+  return appDataPath;
 }
 
-export function getAppDataPathFromProps(props: IWebServiceProps) {
-  //      const packageJson = JSON.parse(fs.readFileSync(path.join(require.resolve('.'), '../../package.json')).toString());
-  //      const packageName = packageJson.name;
-  const { packageName, appDataRoot} = props;
-console.log(`getAppDataPathFromProps packageName: ${packageName} appDataRoot: ${appDataRoot}`)
-//  const appDataRoot: string | undefined = serviceArgs.appDataRoot;
-if (appDataRoot) {
+export function getAppDataPathFromProps(props: IWebServiceProps<any>) {
+  const { packageName, appDataRoot } = props;
+  console.log(
+    `getAppDataPathFromProps packageName: ${packageName} appDataRoot: ${appDataRoot}`,
+  );
+  //  const appDataRoot: string | undefined = serviceArgs.appDataRoot;
+  if (appDataRoot) {
     if (appDataRoot.startsWith("/")) {
       console.log(`returning for '/' case`);
       return path.join(appDataRoot, "/appdata/", packageName);
@@ -35,4 +37,3 @@ if (appDataRoot) {
     packageName,
   );
 }
-

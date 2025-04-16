@@ -1,37 +1,50 @@
-import { Router } from 'express';
+import { ILogger } from "@swizzyweb/swizzy-common";
+import { Router } from "express";
+import { SwizzyWinstonLogger } from "./util/logger";
 
-// See if router is a class?
-export interface IWebRouter<STATE, GLOBAL_STATE> {
+export type NewWebRouterClass<GLOBAL_STATE, LOCAL_STATE> = new (
+  props: IWebRouterProps<LOCAL_STATE>,
+) => IWebRouter<GLOBAL_STATE, LOCAL_STATE>;
+
+export type isWebRouter = { isWebRouter: boolean };
+
+export type SwizzyWebRouterClass<GLOBAL_STATE, LOCAL_STATE> = NewWebRouterClass<
+  GLOBAL_STATE,
+  LOCAL_STATE
+> &
+  isWebRouter;
+
+export interface IWebRouter<GLOBAL_STATE, LOCAL_STATE> {
   initialize(props: IWebRouterInitProps<GLOBAL_STATE>): Promise<void>;
-  router(): any;//Router;
-  getState(): STATE;
-  /**
-   * Not sure if we should strongly type key / values
-   */
-  //setStateParam(key: any, value: any): Promise<void>;
+  router(): any; //Router;
+  getState(): LOCAL_STATE;
 }
 
-export interface IWebRouterProps<STATE> {
-  state: STATE;
+export interface IWebRouterProps<LOCAL_STATE> {
+  state: LOCAL_STATE;
+  logger: ILogger<any>;
 }
 
 export interface IWebRouterInitProps<GLOBAL_STATE> {
-  globalState?: GLOBAL_STATE
+  globalState?: GLOBAL_STATE;
 }
-  
 
+export abstract class WebRouter<GLOBAL_STATE, LOCAL_STATE>
+  implements IWebRouter<GLOBAL_STATE, LOCAL_STATE>
+{
+  static isWebRouter = true;
 
-// Thinking...
-export abstract class WebRouter<STATE, GLOBAL_STATE> implements IWebRouter<STATE, GLOBAL_STATE> {
   /**
-  * Configured in initialize.
-  */
+   * Configured in initialize.
+   */
   actualRouter?: Router;
-  state: STATE;
-  globalState?: GLOBAL_STATE
-  constructor(props: IWebRouterProps<STATE>) {
-     this.state = props.state;
-//     this.router.bind(this);
+  state: LOCAL_STATE;
+  globalState?: GLOBAL_STATE;
+  protected _logger: ILogger<any>;
+
+  constructor(props: IWebRouterProps<LOCAL_STATE>) {
+    this.state = props.state;
+    this._logger = props.logger;
   }
 
   // Should we inject state here instead?
@@ -40,28 +53,34 @@ export abstract class WebRouter<STATE, GLOBAL_STATE> implements IWebRouter<STATE
   // Feel free to overide
   async initialize(props: IWebRouterInitProps<GLOBAL_STATE>): Promise<void> {
     this.globalState = props.globalState;
+    try {
+      this.actualRouter = await this.getInitializedRouter(props);
+    } catch (e: any) {
+      this._logger.error(`Error initializing router with error: ${e}`);
+      throw {
+        message: "Error initializing router",
+        trace: e.stack ?? new Error("Error initializing router").stack,
+        exception: e,
+      };
+    }
   }
+
+  protected abstract getInitializedRouter(
+    props: IWebRouterInitProps<GLOBAL_STATE>,
+  ): Promise<Router>;
 
   router(): Router {
-//    this.router.bind(this);
-    console.log(this);
-    console.log(this.actualRouter);
     if (this.actualRouter) {
-
       return this.actualRouter;
     } else {
-      throw {name: 'RouterNotInitializedError', message: `Router is not defined, did you call initialize on this router?`};
+      throw {
+        name: "RouterNotInitializedError",
+        message: `Router is not defined, did you call initialize on this router?`,
+      };
     }
-
-
   }
-  
-  /*setStateParam(key: any, value: any): Promise<void> {
-    this.state[key] = value;
-  }*/
 
-  getState(): STATE {
+  getState(): LOCAL_STATE {
     return this.state;
   }
-  
 }

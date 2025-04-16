@@ -1,4 +1,4 @@
-import { ILogger } from "@swizzyweb/swizzy-common";
+import { BaseLogger, BrowserLogger, ILogger } from "@swizzyweb/swizzy-common";
 import { timeStamp } from "node:console";
 import { json } from "node:stream/consumers";
 import { createLogger, format, info, level, Logger, transports } from "winston";
@@ -13,12 +13,13 @@ export interface ISwizzyLoggerProps {
   port: number;
   pid?: number;
   logLevel?: string;
+  ownerName?: string;
 }
 
-export class SwizzyWinstonLogger implements ILogger {
+export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
   logger: Logger;
-
-  constructor(props?: ISwizzyLoggerProps) {
+  constructor(props: ISwizzyLoggerProps) {
+    super(props);
     const {
       appName,
       instanceId,
@@ -27,29 +28,32 @@ export class SwizzyWinstonLogger implements ILogger {
       hostName,
       logLevel,
       pid,
-      logDir,
-    } = props ?? {};
-    //    const myLabel = {hostName, port, instanceId, appName};
-    const label = `${hostName}:${port}:${instanceId}:${appName}${pid ? `:${pid}` : ""}`;
+      ownerName,
+    } = props;
 
-    //const myFormat = printf(({ level, message, label, timestamp }) => {
-    //    return `${timestamp} [${label}] ${level}: ${message}`;
-    //    });
+    const label = `${hostName}:${port}:${instanceId}:${appName}${pid ? `:${pid}` : ""}${ownerName ? `:${ownerName}` : ""}`;
+
+    let resultMessage = "";
+    const consoleLogFormat = format.combine(
+      format.timestamp(),
+      format.label({ label }),
+      format.simple(),
+    );
+    const loggerTransports: any[] = [
+      new transports.Console({
+        format: consoleLogFormat,
+      }),
+    ];
+    resultMessage += "Setup console logger\n";
     const loggerFormat = format.combine(
       format.timestamp(),
       format.json(),
-      format.label({ label: label }),
+      format.label({ label }),
     );
-
-    const loggerTransports: any[] = [
-      new transports.Console({
-        format: loggerFormat,
-      }),
-    ];
 
     if (appDataRoot) {
       const dirname = path.join(appDataRoot, "/logs");
-      console.log(`has app data root, configuring file transport ${dirname}`);
+      //     console.log(`has app data root, configuring file transport ${dirname}`);
 
       loggerTransports.push(
         new transports.DailyRotateFile({
@@ -61,9 +65,11 @@ export class SwizzyWinstonLogger implements ILogger {
           frequency: "24h",
         }),
       );
+
+      resultMessage += `appDataRoot set, setting log directory to ${dirname}`;
     }
 
-    console.debug(`transports: ${loggerTransports}`);
+    //    console.debug(`transports: ${loggerTransports}`);
 
     this.logger = createLogger({
       format: loggerFormat,

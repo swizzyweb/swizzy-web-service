@@ -1,6 +1,6 @@
 {
   "name": "@swizzyweb/swizzy-web-service",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Web service framework for swizzy dyn serve",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,9 +11,8 @@
     "prettier": "prettier ./src"
   },
   "author": "WannaWatchMeCode",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "devDependencies": {
-    "@swizzyweb/my-first-web-service": "^0.2.0",
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.14",
     "@types/node": "^20.12.8",
@@ -27,7 +26,7 @@
   },
   "dependencies": {
     "@swizzyweb/express": "^4.19.2",
-    "@swizzyweb/swizzy-common": "^0.2.0",
+    "@swizzyweb/swizzy-common": "^0.2.1",
     "tcp-port-used": "^1.0.2",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
