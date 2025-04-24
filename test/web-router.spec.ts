@@ -72,5 +72,21 @@ describe("WebRouter test", () => {
           createdAt,
         });
     });
+    it("Should set default path to '/'", () => {
+      const router = new MyFirstWebRouter({
+        logger: routerLogger,
+        state: { memoryDb: {} },
+      });
+      expect(router.path).toEqual("/");
+    });
+
+    it("Should override path with /myNewPath", () => {
+      const router = new MyFirstWebRouter({
+        logger: routerLogger,
+        state: { memoryDb: {} },
+        path: "/myNewPath",
+      });
+      expect(router.path).toEqual("/myNewPath");
+    });
   });
 });

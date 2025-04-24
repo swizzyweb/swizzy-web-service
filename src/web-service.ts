@@ -220,7 +220,7 @@ export abstract class WebService<GLOBAL_STATE> implements IWebService {
     });
     //await router.initialize({ globalState: this.state });
     const expressRouter = await instance.router();
-    this.app.use(expressRouter);
+    this.app.use(instance.path, expressRouter);
     this._installedRouters.push(expressRouter);
   }
 

@@ -1,13 +1,11 @@
 import { ILogger } from "@swizzyweb/swizzy-common";
 import { Router } from "express";
-import { SwizzyWinstonLogger } from "./util/logger";
 
 export type NewWebRouterClass<GLOBAL_STATE, LOCAL_STATE> = new (
   props: IWebRouterProps<LOCAL_STATE>,
 ) => IWebRouter<GLOBAL_STATE, LOCAL_STATE>;
 
 export type isWebRouter = { isWebRouter: boolean };
-
 export type SwizzyWebRouterClass<GLOBAL_STATE, LOCAL_STATE> = NewWebRouterClass<
   GLOBAL_STATE,
   LOCAL_STATE
@@ -18,11 +16,13 @@ export interface IWebRouter<GLOBAL_STATE, LOCAL_STATE> {
   initialize(props: IWebRouterInitProps<GLOBAL_STATE>): Promise<void>;
   router(): any; //Router;
   getState(): LOCAL_STATE;
+  path: string;
 }
 
 export interface IWebRouterProps<LOCAL_STATE> {
   state: LOCAL_STATE;
   logger: ILogger<any>;
+  path?: string;
 }
 
 export interface IWebRouterInitProps<GLOBAL_STATE> {
@@ -41,10 +41,12 @@ export abstract class WebRouter<GLOBAL_STATE, LOCAL_STATE>
   state: LOCAL_STATE;
   globalState?: GLOBAL_STATE;
   protected _logger: ILogger<any>;
+  path: string;
 
   constructor(props: IWebRouterProps<LOCAL_STATE>) {
     this.state = props.state;
     this._logger = props.logger;
+    this.path = props.path ?? "/";
   }
 
   // Should we inject state here instead?
