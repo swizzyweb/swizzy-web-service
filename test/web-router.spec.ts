@@ -1,14 +1,12 @@
-// Import the module or component to test
 import { WebRouter } from "../src/web-router";
 import { MyFirstWebRouter, routerLogger } from "./impls/test-web-router";
 import request from "supertest";
 // @ts-ignore
 import express from "@swizzyweb/express";
-// Describe the test suite
+
 describe("WebRouter test", () => {
   let app: any;
 
-  // Example of a unit test for a function
   describe("MyFirstWebRouter", () => {
     beforeEach(() => {
       app = express();
@@ -72,12 +70,12 @@ describe("WebRouter test", () => {
           createdAt,
         });
     });
-    it("Should set default path to '/'", () => {
+    it("Should set default path to '/webRouter'", () => {
       const router = new MyFirstWebRouter({
         logger: routerLogger,
         state: { memoryDb: {} },
       });
-      expect(router.path).toEqual("/");
+      expect(router.path).toEqual("/webRouter");
     });
 
     it("Should override path with /myNewPath", () => {

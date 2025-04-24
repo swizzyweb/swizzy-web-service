@@ -1,5 +1,7 @@
 import { ILogger } from "@swizzyweb/swizzy-common";
-import { Router } from "express";
+// @ts-ignore
+import { Router } from "@swizzyweb/express";
+import { SwizzyMiddleware } from "./middleware";
 
 export type NewWebRouterClass<GLOBAL_STATE, LOCAL_STATE> = new (
   props: IWebRouterProps<LOCAL_STATE>,
@@ -23,6 +25,7 @@ export interface IWebRouterProps<LOCAL_STATE> {
   state: LOCAL_STATE;
   logger: ILogger<any>;
   path?: string;
+  middleware?: SwizzyMiddleware<LOCAL_STATE>[];
 }
 
 export interface IWebRouterInitProps<GLOBAL_STATE> {
@@ -42,11 +45,14 @@ export abstract class WebRouter<GLOBAL_STATE, LOCAL_STATE>
   globalState?: GLOBAL_STATE;
   protected _logger: ILogger<any>;
   path: string;
+  private _middleware: SwizzyMiddleware<LOCAL_STATE>[];
 
   constructor(props: IWebRouterProps<LOCAL_STATE>) {
     this.state = props.state;
     this._logger = props.logger;
     this.path = props.path ?? "/";
+    this._middleware =
+      props.middleware ?? ([] as SwizzyMiddleware<LOCAL_STATE>[]);
   }
 
   // Should we inject state here instead?
@@ -67,9 +73,16 @@ export abstract class WebRouter<GLOBAL_STATE, LOCAL_STATE>
     }
   }
 
-  protected abstract getInitializedRouter(
+  /**
+   * overide this to configure your router, ensuring you call super first.
+   */
+  protected getInitializedRouter(
     props: IWebRouterInitProps<GLOBAL_STATE>,
-  ): Promise<Router>;
+  ): Promise<Router> {
+    const router = Router();
+    this.installMiddleware({ ...props, router, logger: this._logger });
+    return router;
+  }
 
   router(): Router {
     if (this.actualRouter) {
@@ -85,4 +98,25 @@ export abstract class WebRouter<GLOBAL_STATE, LOCAL_STATE>
   getState(): LOCAL_STATE {
     return this.state;
   }
+
+  protected installMiddleware(props: IInstallRouterMiddlewareProps) {
+    const { router, logger } = props;
+    const middleware = this.getMiddleware();
+    middleware.forEach((middle: SwizzyMiddleware<LOCAL_STATE>) => {
+      router.use(middle({ logger, state: this.state }));
+    });
+  }
+
+  protected getMiddleware(): SwizzyMiddleware<LOCAL_STATE>[] {
+    return this._middleware;
+  }
+}
+
+export interface IPackageStateProps<GLOBAL_STATE> {
+  globalState: GLOBAL_STATE;
+}
+
+export interface IInstallRouterMiddlewareProps {
+  router: Router;
+  logger: ILogger<any>;
 }

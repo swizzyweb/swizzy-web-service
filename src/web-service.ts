@@ -8,10 +8,11 @@ import {
 
 import { getAppDataPathFromPropsAndInitialize } from "./util/app-data-helper";
 import { IWebServiceProps } from "./web-service-props";
-import { SwizzyWebRouterClass } from "./web-router";
+import { IWebRouter, SwizzyWebRouterClass } from "./web-router";
 import { Logger } from "winston";
 import { SwizzyWinstonLogger } from "./util/logger";
-
+import { RequestLoggerMiddleware } from "./middleware/request-logger-middleware";
+import { SwizzyMiddleware } from "./middleware/swizzy-middleware";
 export const DEFAULT_PORT_NUMBER = 3000;
 
 export interface IRunResult {}
@@ -43,6 +44,7 @@ export abstract class WebService<GLOBAL_STATE> implements IWebService {
   protected appDataPath: string;
   protected state: GLOBAL_STATE;
   protected _installedRouters: Router[];
+  protected _installedWebRouters: IWebRouter<GLOBAL_STATE, any>[];
 
   constructor(props: IWebServiceProps<GLOBAL_STATE>) {
     this._isInstalled = false;
@@ -55,6 +57,7 @@ export abstract class WebService<GLOBAL_STATE> implements IWebService {
     this.appDataPath = getAppDataPathFromPropsAndInitialize(props);
     this.state = props.state ?? ({} as GLOBAL_STATE);
     this._installedRouters = [];
+    this._installedWebRouters = [];
   }
 
   async install(props: IRunProps): Promise<IRunResult> {
@@ -108,7 +111,7 @@ export abstract class WebService<GLOBAL_STATE> implements IWebService {
       }
 
       logger.info(`Uninstalling routers for ${this.name}`);
-      await this.uninstallRouters(this.app);
+      await this.uninstallRouters({ app: this.app });
       logger.info(`Uninstalled routers for ${this.name}`);
       this._isInstalled = false;
 
@@ -154,7 +157,14 @@ export abstract class WebService<GLOBAL_STATE> implements IWebService {
     });
   }
 
-  protected uninstallRouters(app: Application): Promise<any> {
+  protected async uninstallRouters(app: Application): Promise<any> {
+    return await Promise.all([
+      this.uninstallExpressRouters({ app }),
+      this.uninstallWebRouters({ app }),
+    ]);
+  }
+
+  protected uninstallWebRouters(props: { app: Application }): Promise<any> {
     const logger = this._logger;
     if (!this._isInstalled) {
       logger.error(
@@ -165,6 +175,44 @@ export abstract class WebService<GLOBAL_STATE> implements IWebService {
       });
     }
 
+    // Yes I know this is bad...
+    /*    this.routerClasses.forEach((clazz) => {
+      for (let i=0; i<this._installedRouters.length; i++) {
+        if (clazz.name)
+      }
+    })*/
+    while (this._installedWebRouters.length > 0) {
+      let router = this._installedWebRouters.pop();
+
+      const expressRouter = router?.router();
+      // TODO: update
+      // @ts-ignore
+      this.app.unuse(router.path, expressRouter);
+    }
+
+    return Promise.resolve({
+      message: `Uninstalled routers for Service ${this.name}`,
+    });
+  }
+
+  protected uninstallExpressRouters(props: { app: Application }) {
+    const { app } = props;
+    const logger = this._logger;
+    if (!this._isInstalled) {
+      logger.error(
+        `Service ${this.name} is not installed, cannot uninstall routers`,
+      );
+      return Promise.reject({
+        message: `Service ${this.name} is not installed, cannot uninstall routers`,
+      });
+    }
+
+    // Yes I know this is bad...
+    /*    this.routerClasses.forEach((clazz) => {
+      for (let i=0; i<this._installedRouters.length; i++) {
+        if (clazz.name)
+      }
+    })*/
     while (this._installedRouters.length > 0) {
       let router = this._installedRouters.pop();
       // TODO: update
@@ -211,17 +259,19 @@ export abstract class WebService<GLOBAL_STATE> implements IWebService {
     router: SwizzyWebRouterClass<any, any>,
   ): Promise<void> {
     this._logger.info("Hit installWebRouter");
+
     const instance = new router({
-      state: this.getState(),
+      state: { ...this.getState() },
       logger: this._logger.clone({ ownerName: router.name }),
     });
+
     await instance.initialize({
       globalState: this.getState(),
     });
-    //await router.initialize({ globalState: this.state });
-    const expressRouter = await instance.router();
+
+    const expressRouter = instance.router();
     this.app.use(instance.path, expressRouter);
-    this._installedRouters.push(expressRouter);
+    this._installedWebRouters.push(instance);
   }
 
   private installExpressRouter(router: Router) {
@@ -239,4 +289,25 @@ export abstract class WebService<GLOBAL_STATE> implements IWebService {
    *     Does nothing by default
    */
   protected addMiddleware(router: Router): void {}
+
+  protected getMiddleware(): SwizzyMiddleware<GLOBAL_STATE>[] {
+    return [RequestLoggerMiddleware];
+  }
+
+  /*protected installMiddleware(props: IInstallMiddlewareProps) {
+    const { app, logger } = props;
+    const middleware = this.getMiddleware();
+    middleware.forEach((middle) => {
+      app.use(middle({ logger, state: this.getState() }));
+    });
+  }*/
+}
+
+export interface IInstallMiddlewareProps {
+  app: Application;
+  logger: ILogger<any>;
+}
+export interface IInstallMiddlewareToRouterProps {
+  router: Router;
+  logger: ILogger<any>;
 }

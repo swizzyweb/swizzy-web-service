@@ -326,7 +326,7 @@ describe("webservice", () => {
 
     const webservice: any = new WebRouterWebService(args);
     await webservice.install({});
-    expect(webservice._installedRouters.length).toEqual(1);
+    expect(webservice._installedWebRouters.length).toEqual(1);
   });
 
   it("Should call unuse with router to uninstall", async () => {

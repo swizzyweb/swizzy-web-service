@@ -28,13 +28,14 @@ export class MyFirstWebRouter extends WebRouter<any, IMyFirstWebRouterState> {
         ...props.state,
         currentUserName: "WannaWatchMeCode",
       },
+      path: props.path ?? "/webRouter",
     });
   }
 
   async getInitializedRouter(
     props: IMyFirstWebServiceInitProps,
   ): Promise<express.Router> {
-    const router = express.Router();
+    const router = await super.getInitializedRouter(props);
     const state = this.getState();
     router.get("/hello", (req: express.Request, res: express.Response) => {
       //res.contentType('text/plain')
