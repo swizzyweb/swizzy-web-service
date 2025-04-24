@@ -31,13 +31,14 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
       ownerName,
     } = props;
 
-    const label = `${hostName}:${port}:${instanceId}:${appName}${pid ? `:${pid}` : ""}${ownerName ? `:${ownerName}` : ""}`;
+    const label = `${hostName ?? ""}:${port ?? ""}:${instanceId ?? ""}:${appName ?? ""}:${pid ?? ""}:${ownerName ?? ""}:`;
 
     let resultMessage = "";
     const consoleLogFormat = format.combine(
       format.timestamp(),
       format.label({ label }),
-      format.simple(),
+      format.colorize(),
+      format.prettyPrint(),
     );
     const loggerTransports: any[] = [
       new transports.Console({
@@ -93,4 +94,8 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
   debug(val: string, ...meta: any[]): void {
     this.logger.debug(val, ...meta);
   }
+}
+
+function appendOrNothing(val?: any) {
+  return val != undefined ? `${val}:` : "";
 }
