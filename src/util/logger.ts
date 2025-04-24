@@ -31,7 +31,7 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
       ownerName,
     } = props;
 
-    const label = `${hostName ?? ""}:${port ?? ""}:${instanceId ?? ""}:${appName ?? ""}:${pid ?? ""}:${ownerName ?? ""}:`;
+    const label = `${appendOrNothing(hostName)}${appendOrNothing(port)}${appendOrNothing(instanceId)}${appendOrNothing(appName)}${appendOrNothing(pid)}${appendOrNothing(ownerName)}`;
 
     let resultMessage = "";
     const consoleLogFormat = format.combine(
@@ -97,5 +97,5 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
 }
 
 function appendOrNothing(val?: any) {
-  return val != undefined ? `${val}:` : "";
+  return (val ?? "undefined" !== "undefined") ? `${val}:` : ":";
 }
