@@ -29,6 +29,7 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
       ownerName,
     } = props;
 
+    console.log(`loggerProps: ${props}`);
     const label = `${appendOrNothing(hostName)}${appendOrNothing(port)}${appendOrNothing(instanceId)}${appendOrNothing(appName)}${appendOrNothing(pid)}${appendOrNothing(ownerName)}`;
 
     let resultMessage = "";
@@ -68,8 +69,6 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
       resultMessage += `appDataRoot set, setting log directory to ${dirname}`;
     }
 
-    //    console.debug(`transports: ${loggerTransports}`);
-
     this.logger = createLogger({
       format: loggerFormat,
       transports: loggerTransports,
@@ -95,5 +94,5 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
 }
 
 function appendOrNothing(val?: any) {
-  return (val ?? "undefined" !== "undefined") ? `${val}:` : ":";
+  return val && val !== "undefined" ? `${val}:` : ":";
 }
