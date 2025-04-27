@@ -38,6 +38,9 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
       format.label({ label }),
       format.colorize(),
       format.prettyPrint(),
+      format.colorize({
+        all: true,
+      }),
     );
     const loggerTransports: any[] = [
       new transports.Console({

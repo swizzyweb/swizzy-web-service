@@ -16,6 +16,7 @@ describe("WebRouter test", () => {
       const router = new MyFirstWebRouter({
         logger: routerLogger,
         state: { memoryDb: {} },
+        appDataPath: ".",
       });
 
       expect(router.router.bind(router)).toThrow({
@@ -28,6 +29,7 @@ describe("WebRouter test", () => {
       const router = new MyFirstWebRouter({
         logger: routerLogger,
         state: { memoryDb: {} },
+        appDataPath: ".",
       });
       await router.initialize({});
       app.use("/api", router.router()); // Mount the router
@@ -39,6 +41,7 @@ describe("WebRouter test", () => {
       const router = new MyFirstWebRouter({
         logger: routerLogger,
         state: { memoryDb: {} },
+        appDataPath: ".",
       });
       await router.initialize({});
       app.use("/api", router.router()); // Mount the router
@@ -56,6 +59,7 @@ describe("WebRouter test", () => {
       const router = new MyFirstWebRouter({
         logger: routerLogger,
         state: { memoryDb: {} },
+        appDataPath: ".",
       });
       const createdAt = Date.now();
       const creatorName = "SwizzyWeb";
@@ -74,6 +78,7 @@ describe("WebRouter test", () => {
       const router = new MyFirstWebRouter({
         logger: routerLogger,
         state: { memoryDb: {} },
+        appDataPath: ".",
       });
       expect(router.path).toEqual("/webRouter");
     });
@@ -83,6 +88,7 @@ describe("WebRouter test", () => {
         logger: routerLogger,
         state: { memoryDb: {} },
         path: "/myNewPath",
+        appDataPath: ".",
       });
       expect(router.path).toEqual("/myNewPath");
     });

@@ -26,6 +26,7 @@ export interface IWebRouterProps<LOCAL_STATE> {
   logger: ILogger<any>;
   path?: string;
   middleware?: SwizzyMiddleware<LOCAL_STATE>[];
+  appDataPath: string;
 }
 
 export interface IWebRouterInitProps<GLOBAL_STATE> {
@@ -46,6 +47,7 @@ export abstract class WebRouter<GLOBAL_STATE, LOCAL_STATE>
   protected _logger: ILogger<any>;
   path: string;
   private _middleware: SwizzyMiddleware<LOCAL_STATE>[];
+  private appDataPath: string;
 
   constructor(props: IWebRouterProps<LOCAL_STATE>) {
     this.state = props.state;
@@ -53,6 +55,7 @@ export abstract class WebRouter<GLOBAL_STATE, LOCAL_STATE>
     this.path = props.path ?? "/";
     this._middleware =
       props.middleware ?? ([] as SwizzyMiddleware<LOCAL_STATE>[]);
+    this.appDataPath = props.appDataPath;
   }
 
   // Should we inject state here instead?

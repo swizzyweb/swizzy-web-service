@@ -11,29 +11,31 @@ export function getAppDataPathFromPropsAndInitialize(
 }
 
 export function getAppDataPathFromProps(props: IWebServiceProps<any>) {
-  const { packageName, appDataRoot } = props;
-  console.log(
+  const { packageName, appDataRoot, logger } = props;
+  logger?.info(
     `getAppDataPathFromProps packageName: ${packageName} appDataRoot: ${appDataRoot}`,
   );
   //  const appDataRoot: string | undefined = serviceArgs.appDataRoot;
   if (appDataRoot) {
     if (appDataRoot.startsWith("/")) {
-      console.log(`returning for '/' case`);
+      logger?.info(`returning for '/' case`);
       return path.join(appDataRoot, "/appdata/", packageName);
     }
 
-    return path.join(
+    return path.join(process.cwd(), appDataRoot, "appdata/", packageName);
+    /*return path.join(
       __dirname,
       "../../",
       appDataRoot,
       "/appdata/",
       packageName,
-    );
+    );*/
   }
 
-  return path.join(
+  /*return path.join(
     path.dirname(require.main?.filename!),
     "../appdata/",
     packageName,
-  );
+  );*/
+  return path.join(process.cwd(), "appdata/", packageName);
 }

@@ -23,6 +23,7 @@ export interface IRunProps {
 
 export interface IWebService {
   readonly name: string;
+  readonly instanceId: string;
   install(props: IRunProps): Promise<IRunResult>;
   uninstall(props: IRunProps): Promise<any>;
   isInstalled(): boolean;
@@ -31,6 +32,11 @@ export interface IWebService {
 export abstract class WebService<GLOBAL_STATE> implements IWebService {
   abstract readonly name: string;
   protected packageName: string;
+  /**
+   * UUID
+   */
+  public readonly instanceId: string;
+
   protected _isInstalled: boolean;
   protected _logger: ILogger<any>;
   /**
@@ -47,6 +53,7 @@ export abstract class WebService<GLOBAL_STATE> implements IWebService {
   protected _installedWebRouters: IWebRouter<GLOBAL_STATE, any>[];
 
   constructor(props: IWebServiceProps<GLOBAL_STATE>) {
+    this.instanceId = crypto.randomUUID();
     this._isInstalled = false;
     this._logger = props.logger ?? new BrowserLogger();
     this.routers = props.routers ?? []; // TODO: remove
@@ -54,7 +61,7 @@ export abstract class WebService<GLOBAL_STATE> implements IWebService {
     this.app = props.app;
     this.port = props.port;
     this.packageName = props.packageName;
-    this.appDataPath = getAppDataPathFromPropsAndInitialize(props);
+    this.appDataPath = getAppDataPathFromPropsAndInitialize(props ?? ".");
     this.state = props.state ?? ({} as GLOBAL_STATE);
     this._installedRouters = [];
     this._installedWebRouters = [];
@@ -263,6 +270,7 @@ export abstract class WebService<GLOBAL_STATE> implements IWebService {
     const instance = new router({
       state: { ...this.getState() },
       logger: this._logger.clone({ ownerName: router.name }),
+      appDataPath: this.appDataPath,
     });
 
     await instance.initialize({
