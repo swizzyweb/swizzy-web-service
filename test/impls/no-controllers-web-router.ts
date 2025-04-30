@@ -5,13 +5,10 @@ import {
 } from "../../src/router/web-router";
 import { DefaultStateExporter } from "../../src/state/state-converter";
 import { SwizzyMiddleware } from "../../src/middleware";
-import { NameWebController } from "./controller/name-web-controller";
-import { HelloWebController } from "./controller/hello-web-controller";
-import { CreatorWebController } from "./controller/creator-web-controller";
 import { ILogger } from "@swizzyweb/swizzy-common";
 import { TestRouterState } from "./state/test-router-state";
 
-export interface IMyFirstWebRouterState {
+export interface INoControllerWebRouterState {
   memoryDb: any;
   currentUserName?: string;
   createdAt?: number;
@@ -24,21 +21,18 @@ export interface IMyFirstWebRouterProps
   middleware?: SwizzyMiddleware<TestRouterState>[];
 }
 
-export interface IMyFirstWebServiceInitProps extends IWebRouterInitProps<any> {}
+export interface INoControllerWebRouterInitProps
+  extends IWebRouterInitProps<any> {}
 
-export class MyFirstWebRouter extends WebRouter<any, TestRouterState> {
+export class NoControllerWebRouter extends WebRouter<any, TestRouterState> {
   constructor(props: IMyFirstWebRouterProps) {
     super({
       name: "MyFirstWebRouter",
       path: "api",
-      middleware: props.middleware,
-      webControllerClasses: [
-        NameWebController,
-        HelloWebController,
-        CreatorWebController,
-      ],
+      middleware: props.middleware ?? [],
+      ...props,
+      webControllerClasses: [],
       stateConverter: DefaultStateExporter,
-      logger: props.logger,
     });
   }
 }

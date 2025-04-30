@@ -1,7 +1,7 @@
 import { ILogger } from "@swizzyweb/swizzy-common";
 // @ts-ignore
 import { NextFunction, Request, Response } from "@swizzyweb/express";
-import { SwizzyMiddleware, SwizzyMiddlewareProps } from "./swizzy-middleware";
+import { SwizzyMiddlewareProps } from "./swizzy-middleware";
 
 export interface RequestLoggerMiddlewareProps<STATE>
   extends SwizzyMiddlewareProps<STATE> {
@@ -22,14 +22,17 @@ export function RequestLoggerMiddleware<STATE>(
   }
 
   return function (req: Request, res: Response, next: NextFunction) {
-    const requestId = crypto.randomUUID();
+    const requestId = req.requestId ?? crypto.randomUUID();
     res.on("finish", () => {
       logger.info(
-        `[${requestId}]: ${req.method} ${req.originalUrl} ${req.ip} ${res.statusCode}`,
+        `[res-${requestId}]: ${req.method} ${req.originalUrl} ${req.ip} ${res.statusCode}`,
       );
     });
 
-    logger.info(`[${requestId}]: ${req.method} ${req.originalUrl} ${req.ip}`);
+    logger.info(
+      `[req-${requestId}]: ${req.method} ${req.originalUrl} ${req.ip}`,
+    );
+    req.requestId = requestId;
     next();
   };
 }

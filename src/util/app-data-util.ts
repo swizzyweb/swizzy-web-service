@@ -1,21 +1,26 @@
 import path from "path";
 import fs from "fs";
-import { IWebServiceProps } from "../web-service-props";
+import { ILogger } from "@swizzyweb/swizzy-common";
 
 export function getAppDataPathFromPropsAndInitialize(
-  props: IWebServiceProps<any>,
+  props: GetAppDataPathFromPropsProps,
 ) {
   const appDataPath = getAppDataPathFromProps(props);
   fs.mkdirSync(appDataPath, { recursive: true });
   return appDataPath;
 }
 
-export function getAppDataPathFromProps(props: IWebServiceProps<any>) {
+export interface GetAppDataPathFromPropsProps {
+  packageName: string;
+  appDataRoot: string;
+  logger: ILogger<any>;
+}
+
+export function getAppDataPathFromProps(props: GetAppDataPathFromPropsProps) {
   const { packageName, appDataRoot, logger } = props;
   logger?.info(
     `getAppDataPathFromProps packageName: ${packageName} appDataRoot: ${appDataRoot}`,
   );
-  //  const appDataRoot: string | undefined = serviceArgs.appDataRoot;
   if (appDataRoot) {
     if (appDataRoot.startsWith("/")) {
       logger?.info(`returning for '/' case`);
@@ -23,19 +28,7 @@ export function getAppDataPathFromProps(props: IWebServiceProps<any>) {
     }
 
     return path.join(process.cwd(), appDataRoot, "appdata/", packageName);
-    /*return path.join(
-      __dirname,
-      "../../",
-      appDataRoot,
-      "/appdata/",
-      packageName,
-    );*/
   }
 
-  /*return path.join(
-    path.dirname(require.main?.filename!),
-    "../appdata/",
-    packageName,
-  );*/
   return path.join(process.cwd(), "appdata/", packageName);
 }

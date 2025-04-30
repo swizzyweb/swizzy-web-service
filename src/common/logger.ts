@@ -2,6 +2,7 @@ import { BaseLogger, BrowserLogger, ILogger } from "@swizzyweb/swizzy-common";
 import { createLogger, format, info, level, Logger, transports } from "winston";
 import * as path from "path";
 import "winston-daily-rotate-file";
+import { mkdirSync } from "fs";
 export interface ISwizzyLoggerProps {
   hostName: string;
   appName: string;
@@ -12,6 +13,7 @@ export interface ISwizzyLoggerProps {
   pid?: number;
   logLevel?: string;
   ownerName?: string;
+  logFileName?: string;
 }
 
 export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
@@ -27,9 +29,9 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
       logLevel,
       pid,
       ownerName,
+      logFileName,
     } = props;
 
-    console.log(`loggerProps: ${props}`);
     const label = `${appendOrNothing(hostName)}${appendOrNothing(port)}${appendOrNothing(instanceId)}${appendOrNothing(appName)}${appendOrNothing(pid)}${appendOrNothing(ownerName)}`;
 
     let resultMessage = "";
@@ -56,13 +58,16 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
 
     if (appDataRoot) {
       const dirname = path.join(appDataRoot, "/logs");
-      //     console.log(`has app data root, configuring file transport ${dirname}`);
+      mkdirSync(dirname, { recursive: true });
 
+      // TODO: this seems to be async, so the logger is not always initialized
+      // by the time this returns. Or something else in here is async, maybe
+      // the file transport.
       loggerTransports.push(
         new transports.DailyRotateFile({
           format: loggerFormat,
           dirname,
-          filename: `${appName}-${hostName}-%DATE%.log`,
+          filename: logFileName ?? `${appName}-${hostName}-%DATE%.log`,
           datePattern: "YYYY-MM-DD-HH",
           zippedArchive: true,
           frequency: "24h",
@@ -80,7 +85,7 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
   }
 
   log(val: string, ...meta: any[]): void {
-    this.logger.log("info", val, ...meta);
+    this.info(val, ...meta);
   }
   info(val: string, ...meta: any[]): void {
     this.logger.info(val, ...meta);

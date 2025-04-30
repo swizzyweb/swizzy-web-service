@@ -1,5 +1,5 @@
-import { SwizzyWebRouterClass } from "../src/web-router";
-import { WebService } from "../src/web-service";
+import { SwizzyWebRouterClass } from "../src/router/web-router";
+import { WebService } from "../src/service/web-service";
 import {
   IMyFirstWebRouterState,
   MyFirstWebRouter,

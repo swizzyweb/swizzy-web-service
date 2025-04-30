@@ -34,10 +34,10 @@ describe("RequestLoggerMiddleware tests", () => {
     expect(res.statusCode).toEqual(200);
     expect(res.body).toEqual({ value: "Hello" });
     expect(infoSpy).toHaveBeenCalledWith(
-      `[${uuid}]: GET /home/home ::ffff:127.0.0.1`,
+      `[req-${uuid}]: GET /home/home ::ffff:127.0.0.1`,
     );
     expect(infoSpy).toHaveBeenCalledWith(
-      `[${uuid}]: GET /home/home ::ffff:127.0.0.1 200`,
+      `[res-${uuid}]: GET /home/home ::ffff:127.0.0.1 200`,
     );
   });
 
