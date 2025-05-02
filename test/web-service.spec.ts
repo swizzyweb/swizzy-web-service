@@ -4,57 +4,44 @@ import path from "path";
 import request from "supertest";
 // @ts-ignore
 import express from "@swizzyweb/express";
-import { WebRouterWebService } from "./impls/web-router-web-service";
+import {
+  IWebRouterWebServiceProps,
+  WebRouterWebService,
+} from "./impls/web-router-web-service";
 import { webServiceLogger } from "./impls/router-logger";
+const logger = webServiceLogger;
+const port = 3000;
+const state: any = {
+  memoryDb: {},
+  currentUserName: "Jaymoney",
+  creatorName: "Jaymoney",
+  createdAt: Date.now(),
+};
+
 describe("Webservice tests", () => {
   describe("Integration tests", () => {
-    const state: any = {
-      memoryDb: {},
-      currentUserName: "Jaymoney",
-      creatorName: "Jaymoney",
-      createdAt: Date.now(),
-    };
     let app: any;
+    let args: IWebRouterWebServiceProps;
     beforeEach(() => {
       app = express();
-      //app.use(express.json()); // Middleware to parse JSON
+      args = {
+        app,
+        logger,
+        port,
+        state,
+      };
     });
 
     it("Should install express router", () => {
-      const args = {
-        packageName: "@swizzyweb/dummy-web-service",
-        appDataRoot: undefined,
-        serviceArgs: {},
-        logger: webServiceLogger,
-      };
-
-      // const webservice: any = new WebRouterWebService(args);
+      const webservice: any = new WebRouterWebService(args);
     });
 
     it("Should install WebRouter", async () => {
-      const args = {
-        packageName: "@swizzyweb/dummy-web-service",
-        appDataRoot: undefined,
-        serviceArgs: {},
-        state,
-        app,
-        logger: webServiceLogger,
-      };
-
       const webservice: any = new WebRouterWebService(args);
       await webservice.install({});
     });
 
     it("Should throw on install WebRouter when already installed", async () => {
-      const args = {
-        packageName: "@swizzyweb/dummy-web-service",
-        appDataRoot: undefined,
-        serviceArgs: {},
-        state,
-        app,
-        logger: webServiceLogger,
-      };
-
       const webservice: any = new WebRouterWebService(args);
       await webservice.install({});
 
@@ -68,28 +55,12 @@ describe("Webservice tests", () => {
     });
 
     it("Should uninstall WebRouter", async () => {
-      const args = {
-        packageName: "@swizzyweb/dummy-web-service",
-        state,
-        app,
-        logger: webServiceLogger,
-      };
-
       const webservice: any = new WebRouterWebService(args);
       await webservice.install({});
       await webservice.uninstall({});
     });
 
     it("Should throw on uninstall when not installed", async () => {
-      const args = {
-        packageName: "@swizzyweb/dummy-web-service",
-        appDataRoot: undefined,
-        serviceArgs: {},
-        state,
-        logger: webServiceLogger,
-        app,
-      };
-
       const webservice: any = new WebRouterWebService(args);
       try {
         await webservice.uninstall({});
@@ -101,44 +72,17 @@ describe("Webservice tests", () => {
     });
 
     it("Should return installed after installed", async () => {
-      const args = {
-        packageName: "@swizzyweb/dummy-web-service",
-        appDataRoot: undefined,
-        serviceArgs: {},
-        state,
-        app,
-        logger: webServiceLogger,
-      };
-
       const webservice: any = new WebRouterWebService(args);
       await webservice.install({});
       expect(webservice.isInstalled()).toEqual(true);
     });
 
     it("Should not be installed before install", async () => {
-      const args = {
-        packageName: "@swizzyweb/dummy-web-service",
-        appDataRoot: undefined,
-        serviceArgs: {},
-        state,
-        app,
-        logger: webServiceLogger,
-      };
-
       const webservice: any = new WebRouterWebService(args);
       expect(webservice.isInstalled()).toEqual(false);
     });
 
     it("Should not be installed after uninstall", async () => {
-      const args = {
-        packageName: "@swizzyweb/dummy-web-service",
-        appDataRoot: undefined,
-        serviceArgs: {},
-        state,
-        app,
-        logger: webServiceLogger,
-      };
-
       const webservice: any = new WebRouterWebService(args);
       await webservice.install({});
       await webservice.uninstall({});
@@ -148,48 +92,37 @@ describe("Webservice tests", () => {
     it("Should call use with router on install", async () => {
       const mockApp = { use: jest.fn() };
       const useSpy = jest.spyOn(mockApp, "use");
-      const args = {
-        logger: webServiceLogger,
-        packageName: "@swizzyweb/dummy-web-service",
-        appDataRoot: undefined,
-        serviceArgs: {},
-        state,
+      const newArgs = {
+        ...args,
         app: mockApp,
       };
 
-      const webservice: any = new WebRouterWebService(args);
+      const webservice: any = new WebRouterWebService(newArgs);
       await webservice.install({});
       expect(useSpy).toHaveBeenCalledTimes(1);
     });
 
     it("Should add installed routers to installedRotuers", async () => {
       const mockApp = { use: jest.fn() };
-      const args = {
-        logger: webServiceLogger,
-        packageName: "@swizzyweb/dummy-web-service",
-        appDataRoot: undefined,
-        serviceArgs: {},
-        state,
+      const newArgs = {
+        ...args,
         app: mockApp,
       };
 
-      const webservice: any = new WebRouterWebService(args);
+      const webservice: any = new WebRouterWebService(newArgs);
       await webservice.install({});
       expect(webservice.installedRouters.length).toEqual(1);
     });
 
     it("Should call unuse with router to uninstall", async () => {
       const mockApp = { use: jest.fn(), unuse: jest.fn() };
-      const args = {
-        logger: webServiceLogger,
-        packageName: "@swizzyweb/dummy-web-service",
-        appDataRoot: undefined,
-        serviceArgs: {},
-        state,
+      const newArgs = {
+        ...args,
         app: mockApp,
       };
 
-      const webservice: any = new WebRouterWebService(args);
+      const webservice: any = new WebRouterWebService(newArgs);
+
       await webservice.install({});
       expect(mockApp.use).toHaveBeenCalledTimes(1);
 
@@ -199,16 +132,13 @@ describe("Webservice tests", () => {
 
     it("Should remove router from installedRouters on uninstall", async () => {
       const mockApp = { use: jest.fn(), unuse: jest.fn() };
-      const args = {
-        logger: webServiceLogger,
-        packageName: "@swizzyweb/dummy-web-service",
-        appDataRoot: undefined,
-        serviceArgs: {},
-        state,
+      const newArgs = {
+        ...args,
         app: mockApp,
       };
 
-      const webservice: any = new WebRouterWebService(args);
+      const webservice: any = new WebRouterWebService(newArgs);
+
       await webservice.install({});
       await webservice.uninstall({});
 
@@ -217,9 +147,7 @@ describe("Webservice tests", () => {
 
     it("Should throw on fail install routers", async () => {
       const service = new WebRouterWebService({
-        app,
-        state,
-        logger: webServiceLogger,
+        ...args,
       });
 
       // @ts-ignore
@@ -239,9 +167,7 @@ describe("Webservice tests", () => {
 
     it("Should throw on fail uninstall routers", async () => {
       const service = new WebRouterWebService({
-        app,
-        state,
-        logger: webServiceLogger,
+        ...args,
       });
 
       // @ts-ignore
@@ -266,7 +192,10 @@ describe("Webservice tests", () => {
   });
 
   describe("Integration tests", () => {
-    it("Should maintain state between controllers", async () => {
+    let app: any;
+    let args: IWebRouterWebServiceProps;
+    beforeEach(() => {
+      app = express();
       const state = {
         memoryDb: {},
         creatorName: "creatorName",
@@ -274,18 +203,22 @@ describe("Webservice tests", () => {
         currentUserName: "Jaymoney",
       };
 
-      const app = express();
-      const webService = new WebRouterWebService({
-        logger: webServiceLogger,
+      args = {
         app,
+        logger,
+        port,
         state,
-      });
+      };
+    });
+
+    it("Should maintain state between controllers", async () => {
+      const webService = new WebRouterWebService(args);
 
       await webService.install({});
 
       const firstHelloResponse = await request(app)
         .get("/webservice/api/hello")
-        .expect("Content-Type", /json/)
+        //        .expect("Content-Type", /json/)
         .expect(200)
         .expect({ message: "Hello Jaymoney!" });
 

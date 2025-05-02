@@ -33,7 +33,7 @@ export class HelloWebController extends WebController<
   ): Promise<WebControllerFunction> {
     const getState = this.getState.bind(this);
     return (req: Request, res: Response) => {
-      res.send({ message: `Hello ${getState()?.currentUserName}!` });
+      res.json({ message: `Hello ${getState()?.currentUserName}!` });
     };
   }
 }

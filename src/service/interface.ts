@@ -20,7 +20,7 @@ export interface IWebServiceProps<APP_STATE> {
   app: Application;
 
   /**
-   * Logger
+   * Logger.
    */
   logger: ILogger<any>;
 
@@ -28,6 +28,11 @@ export interface IWebServiceProps<APP_STATE> {
    * State for sharing for app.
    */
   state: APP_STATE;
+
+  /**
+   * Port app is listening on.
+   */
+  port: number;
 }
 
 /**
@@ -49,11 +54,6 @@ export interface IInternalWebServiceProps<APP_STATE>
    * Path of app.
    */
   path: string;
-
-  /**
-   * Port number app is listening to.
-   */
-  port: number;
 
   /**
    * nodejs package name as found in package.json

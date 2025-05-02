@@ -24,7 +24,7 @@ export class NameWebController extends WebController<
       method: RequestMethod.post,
       action: "name",
       logger: props.logger,
-      middleware: [...(props.middleware ?? []), json],
+      middleware: [...(props.middleware ?? [])],
     });
   }
 

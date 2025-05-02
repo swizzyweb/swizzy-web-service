@@ -1,4 +1,4 @@
-interface SwizzyRequestStore {
+export interface SwizzyRequestStore {
   /**
    * Uuid requestId of swizzy request.
    */

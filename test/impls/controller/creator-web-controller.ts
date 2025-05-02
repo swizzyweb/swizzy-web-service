@@ -20,11 +20,11 @@ export class CreatorWebController extends WebController<
 > {
   constructor(props: any) {
     super({
+      ...props,
       name: "CreatorController",
       stateConverter: DefaultStateExporter,
       action: "creator",
       method: RequestMethod.get,
-      ...props,
       logger: props.logger,
       middleware: [...(props.middleware ?? []), json],
     });
