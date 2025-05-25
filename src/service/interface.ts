@@ -5,6 +5,7 @@ import { IWebRouter, SwizzyWebRouterClass } from "../router/web-router";
 import http from "http";
 import https from "https";
 import { IBaseUseUnuseProps } from "../common";
+import { SwizzyMiddleware } from "../middleware";
 
 /**
  * Required fields for client facing WebServices.
@@ -59,6 +60,8 @@ export interface IInternalWebServiceProps<APP_STATE>
    * nodejs package name as found in package.json
    */
   packageName: string;
+
+  middleware: SwizzyMiddleware<APP_STATE>[];
 
   //  server: AnyServer;
 }

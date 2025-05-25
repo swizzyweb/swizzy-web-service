@@ -120,7 +120,7 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE>
    * Initializes router, needs to be called before calling router() method.
    */
   async initialize(props: IWebRouterInitProps<APP_STATE>): Promise<void> {
-    this.logger.info(`Initializing router ${this.name}`);
+    this.logger.debug(`Initializing router ${this.name}`);
     if (this.isInitialized()) {
       this.logger.error(`WebRouter already initialized ${this.name}`);
       throw {
@@ -131,20 +131,20 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE>
         ).stack,
       };
     }
-    this.logger.info(`Converting app state to router state`);
+    this.logger.debug(`Converting app state to router state`);
     this.state = await this.stateConverter({ state: props.appState });
 
-    this.logger.info(`Converted app stsate to router state`);
+    this.logger.debug(`Converted app stsate to router state`);
     try {
-      this.logger.info(`Getting initialized router`);
+      this.logger.debug(`Getting initialized router`);
       this.actualRouter = await this.getInitializedRouter(props);
 
-      this.logger.info(`Got initialized router`);
-      this.logger.info(`Installing web controllers`);
+      this.logger.debug(`Got initialized router`);
+      this.logger.debug(`Installing web controllers`);
       await this.installControllers(props);
 
-      this.logger.info("Installed web controllers");
-      this.logger.info(`${this.name} router initialized`);
+      this.logger.debug("Installed web controllers");
+      this.logger.debug(`${this.name} router initialized`);
     } catch (e: any) {
       this.logger.error(`Error initializing router with error`, e);
       throw {
@@ -184,19 +184,19 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE>
 
   private async installControllers(props: IWebRouterInitProps<APP_STATE>) {
     const logger = this.logger;
-    logger.info("Installing web controllers");
+    logger.debug("Installing web controllers");
     for (const clazz of this.webControllerClasses) {
       await this.installController(clazz);
     }
 
-    logger.info(`Installed web controllers`);
+    logger.debug(`Installed web controllers`);
   }
 
   private async installController(
     clazz: NewWebControllerClass<ROUTER_STATE, any>,
   ) {
     const logger = this.logger;
-    logger.info(`Installing controller ${clazz.name}`);
+    logger.debug(`Installing controller ${clazz.name}`);
     const webController = new clazz({
       logger: logger.clone({ owner: clazz.name }),
     });
@@ -211,7 +211,7 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE>
       installableController.controller,
     );
     this.installedControllers.push(webController);
-    this.logger.info(`Installed controller ${clazz.name}`);
+    this.logger.debug(`Installed controller ${clazz.name}`);
     this.logger.debug(
       `Installed webcontroller ${webController.action} - ${this.actualRouter[webController.method]} - ${installableController.controller}`,
     );
@@ -238,14 +238,13 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE>
     const { logger } = props;
     const middleware = this.getMiddleware();
     if (middleware.length < 1) {
-      this.logger.info(`No router middleware to install for router`);
+      this.logger.debug(`No router middleware to install for router`);
       return;
     }
     for (const middle of middleware) {
-      //      console.error("Install middleware");
-      this.logger.info(`Installing middleware ${middle.name}`);
+      this.logger.debug(`Installing middleware ${middle.name}`);
       await props.router.use(middle({ logger, state: this.getState() }));
-      this.logger.info(`Installed middlware ${middle.name}`);
+      this.logger.debug(`Installed middlware ${middle.name}`);
     }
   }
 

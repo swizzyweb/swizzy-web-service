@@ -46,7 +46,7 @@ export abstract class WebController<ROUTER_STATE, CONTROLLER_STATE>
   async initialize(
     props: IWebControllerInitProps<ROUTER_STATE>,
   ): Promise<void> {
-    this.logger.info(`Initializing controller ${this.name}`);
+    this.logger.debug(`Initializing controller ${this.name}`);
     this.state = await this.stateConverter({ state: props.routerState });
     try {
       this.actualController = await this.getInitializedController({
@@ -61,7 +61,7 @@ export abstract class WebController<ROUTER_STATE, CONTROLLER_STATE>
         error: e,
       };
     }
-    this.logger.info(`Initialized controller ${this.name}`);
+    this.logger.debug(`Initialized controller ${this.name}`);
   }
 
   /**

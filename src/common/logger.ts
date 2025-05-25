@@ -38,8 +38,6 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
     const consoleLogFormat = format.combine(
       format.timestamp(),
       format.label({ label }),
-      format.colorize(),
-      format.prettyPrint(),
       format.colorize({
         all: true,
       }),
