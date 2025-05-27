@@ -13,6 +13,7 @@ export class WebRouterWebService extends WebService<any> {
       routerClasses: [MyFirstWebRouter],
       path: "webservice",
       port: props.port ?? 3000,
+      middleware: [],
     });
   }
 }

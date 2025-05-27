@@ -11,6 +11,7 @@ export class DummyWebService extends WebService<any> {
     super({
       ...props,
       routerClasses: [MyFirstWebRouter],
+      middleware: [],
     });
   }
 }

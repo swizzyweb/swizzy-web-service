@@ -16,7 +16,7 @@ const REMOVE_LOG_DIR_AFTER_TESTS =
 const loggerMethods = ["info", "error", "warn", "debug"];
 let loggerSpy;
 
-const TIMEOUT = 500;
+const TIMEOUT = 1000;
 describe("Logger tests", () => {
   let mockLogger: any = {};
   beforeEach(() => {

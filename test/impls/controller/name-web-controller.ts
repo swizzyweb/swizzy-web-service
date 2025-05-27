@@ -24,7 +24,7 @@ export class NameWebController extends WebController<
       method: RequestMethod.post,
       action: "name",
       logger: props.logger,
-      middleware: [...(props.middleware ?? [])],
+      middleware: [...(props.middleware ?? [json])],
     });
   }
 
@@ -47,6 +47,7 @@ export class NameWebController extends WebController<
           message: `Username has been updated from ${oldUserName} to ${getState()?.currentUserName}`,
         });
       } catch (e: any) {
+        logger.error(e);
         res.status(403);
         res.json({ message: "hello from name controller" });
       }
