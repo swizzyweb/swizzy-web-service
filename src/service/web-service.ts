@@ -190,7 +190,9 @@ export abstract class WebService<APP_STATE> implements IWebService {
     logger.debug(`Calling app.use(router) with ${instance.name}`);
     await this.app.use(
       path.join("/", this.path, "/", instance.path),
-      this.middleware,
+      this.middleware.map((middle) =>
+        middle({ logger, state: this.getState() }),
+      ),
       expressRouter,
     );
     logger.debug(`Called app.use(router) with ${instance.name}`);

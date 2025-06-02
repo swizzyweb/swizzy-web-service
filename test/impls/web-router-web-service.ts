@@ -1,3 +1,8 @@
+import {
+  RequestIdMiddleware,
+  RequestLoggerMiddleware,
+  SwizzyRequestMiddleware,
+} from "../../src/middleware";
 import { WebService } from "../../src/service";
 import { IWebServiceProps } from "../../src/service";
 import { MyFirstWebRouter } from "./test-web-router";
@@ -13,7 +18,11 @@ export class WebRouterWebService extends WebService<any> {
       routerClasses: [MyFirstWebRouter],
       path: "webservice",
       port: props.port ?? 3000,
-      middleware: [],
+      middleware: [
+        SwizzyRequestMiddleware,
+        RequestIdMiddleware,
+        RequestLoggerMiddleware,
+      ],
     });
   }
 }
