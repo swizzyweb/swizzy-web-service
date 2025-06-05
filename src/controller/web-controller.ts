@@ -9,6 +9,7 @@ import {
   WebControllerFunction,
 } from "./types";
 import { RequestMethod } from "./request-method";
+import { middlewaresToJson, stateConverterToJson } from "../util";
 
 /**
  * Base web controller class to be used by routers.
@@ -105,5 +106,23 @@ export abstract class WebController<ROUTER_STATE, CONTROLLER_STATE>
       mappedMiddleware.push(middle({ logger, state }));
     }
     return mappedMiddleware;
+  }
+
+  toJson() {
+    const middleware = middlewaresToJson(this.middleware);
+
+    const { name, logger, action, method } = this;
+    return {
+      name,
+      logger: undefined,
+      action,
+      method,
+      middleware,
+      stateConverter: stateConverterToJson(this.stateConverter),
+    };
+  }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
   }
 }

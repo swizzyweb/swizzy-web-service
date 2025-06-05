@@ -245,5 +245,15 @@ describe("Webservice tests", () => {
           message: `Username has been updated from WannaWatchMeCode to AnadaOne`,
         });
     });
+    it("Should toString without failing", async () => {
+      const webService = new WebRouterWebService(args);
+
+      await webService.install({});
+      webService.toString();
+      console.error(webService.toString());
+      expect(webService.toString()).toEqual(
+        `{"service":{"name":"WebRouterWebService","instanceId":"${webService.instanceId}","isInstalled":true,"port":3000,"packageName":"@my-namespace/web-router-web-service","path":"webservice","installedRouters":[{"name":"MyFirstWebRouter","webControllerClasses":[null,null,null],"installedControllers":[{"name":"NameController","action":"name","method":"post","middleware":[{"name":"json"}],"stateConverter":{"name":"DefaultStateExporter"}},{"name":"HelloController","action":"hello","method":"get","middleware":[],"stateConverter":{"name":"DefaultStateExporter"}},{"name":"CreatorController","action":"creator","method":"get","middleware":[{"name":"json"}],"stateConverter":{"name":"DefaultStateExporter"}}],"path":"api","middleware":[],"stateConverter":{"name":"DefaultStateExporter"}}],"middleware":[{"name":"SwizzyRequestMiddlewareFunction"},{"name":"RequestIdMiddleware"},{"name":"RequestLoggerMiddleware"}]}}`,
+      );
+    });
   });
 });

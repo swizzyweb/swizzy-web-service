@@ -21,6 +21,7 @@ import {
 } from "./interface";
 import { assertOrThrow } from "../util/assertion-util";
 import { SwizzyMiddleware } from "../middleware";
+import { middlewaresToJson, middlewareToJson } from "../util";
 
 export interface IRunResult {}
 
@@ -55,6 +56,9 @@ export interface IWebService {
    * Whether the app is installed or not.
    */
   isInstalled(): boolean;
+
+  toJson(): any;
+  toString(): string;
 }
 /**
  * Base web service class to be implemented.
@@ -95,7 +99,6 @@ export abstract class WebService<APP_STATE> implements IWebService {
     this.path = props.path;
     this.middleware = props.middleware ?? [];
   }
-
   public async install(props: IRunProps): Promise<IRunResult> {
     const logger = this.logger;
     logger.debug(`Installing web service ${this.name}`);
@@ -272,6 +275,41 @@ export abstract class WebService<APP_STATE> implements IWebService {
     await app.unuse(path.join("/", this.path, "/", router.path), expressRouter);
     logger.debug(`Unused router ${router.name}`);
     logger.debug(`Uninstalled router ${router.name}`);
+  }
+
+  toJson(): {
+    name: string;
+    instanceId: string;
+    isInstalled: boolean;
+    logger: any;
+    port: number;
+    packageName: string;
+    state: any;
+    installedRouters: any;
+    path: string;
+    middleware: any;
+  } {
+    const installedRouters = this.installedRouters.map((installedRouter) =>
+      installedRouter.toJson(),
+    );
+    const middleware = middlewaresToJson(this.middleware);
+    const { name, instanceId, _isInstalled, logger, port, packageName, path } =
+      this;
+    return {
+      name,
+      instanceId,
+      isInstalled: _isInstalled,
+      port,
+      packageName,
+      path,
+      logger: undefined,
+      state: undefined,
+      installedRouters,
+      middleware,
+    };
+  }
+  toString(): string {
+    return JSON.stringify({ service: this.toJson() });
   }
 }
 export interface IInstallMiddlewareProps {

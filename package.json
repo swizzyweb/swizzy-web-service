@@ -1,6 +1,6 @@
 {
   "name": "@swizzyweb/swizzy-web-service",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "Web service framework for swizzy dyn serve",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

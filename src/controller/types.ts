@@ -20,6 +20,8 @@ export interface IWebController<ROUTER_STATE, CONTROLLER_STATE> {
   initialize(props: IWebControllerInitProps<ROUTER_STATE>): Promise<void>;
   controller(): WebControllerFunction; //Controller;
   installableController(): InstallableController<CONTROLLER_STATE>;
+  toJson(): any;
+  toString(): any;
 }
 
 export interface IWebControllerProps<ROUTER_STATE, CONTROLLER_STATE> {
