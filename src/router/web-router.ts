@@ -9,6 +9,7 @@ import {
 } from "../controller";
 import { StateConverter } from "../state";
 import path from "path";
+import { middlewaresToJson, stateConverterToJson } from "../util";
 
 export type NewWebRouterClass<APP_STATE, ROUTER_STATE> = new (
   props: IWebRouterProps<APP_STATE, ROUTER_STATE>,
@@ -27,6 +28,8 @@ export interface IWebRouter<APP_STATE, ROUTER_STATE> {
   router(): any; //Router;
   getState(): ROUTER_STATE;
   path: string;
+  toJson(): any;
+  toString(): string;
 }
 
 export interface IWebRouterProps<APP_STATE, ROUTER_STATE> {
@@ -250,6 +253,27 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE>
 
   protected getMiddleware(): SwizzyMiddleware<ROUTER_STATE>[] {
     return this.middleware;
+  }
+
+  toJson() {
+    const middleware = middlewaresToJson(this.middleware);
+    const controllers = this.installedControllers.map((c) => {
+      return c.toJson();
+    });
+    const { name, logger, path } = this;
+    return {
+      name,
+      logger: undefined,
+      webControllerClasses: this.webControllerClasses,
+      installedControllers: controllers,
+      path,
+      middleware,
+      stateConverter: stateConverterToJson(this.stateConverter),
+    };
+  }
+
+  toString(): string {
+    return JSON.stringify(this.toJson());
   }
 }
 
