@@ -9,7 +9,19 @@ steps:
       - npm config set @swizzyweb:registry http://bigun-1.swizzyweb.com:4783
       - npm install
 
+  - name: run build
+    image: node:20
+    commands:
+      - npm config set @swizzyweb:registry http://bigun-1.swizzyweb.com:4783
+      - npm run build
+
   - name: run tests
     image: node:20
     commands:
       - npm run test
+trigger:
+  branch:
+    - main
+    - master
+    - dev
+    - 0.4.x
