@@ -6,13 +6,13 @@ steps:
   - name: install dependencies
     image: node:20
     commands:
-      - npm config set @swizzyweb:registry http://bigun-1.swizzyweb.com:4783
+      - npm config set @swizzyweb:registry http://bigun-1.swizzyweb.com:4873
       - npm install
 
   - name: run build
     image: node:20
     commands:
-      - npm config set @swizzyweb:registry http://bigun-1.swizzyweb.com:4783
+      - npm config set @swizzyweb:registry http://bigun-1.swizzyweb.com:4873
       - npm run build
 
   - name: run tests
