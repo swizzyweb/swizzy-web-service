@@ -1,15 +1,17 @@
-import { MyFirstWebRouter } from "./impls/test-web-router";
-import { routerLogger } from "./impls/router-logger";
+import { MyFirstWebRouter } from "./impls/test-web-router.ts";
+import { routerLogger } from "./impls/router-logger.ts";
 import request from "supertest";
 // @ts-ignore
 import express from "@swizzyweb/express";
-import { NoControllerWebRouter } from "./impls/no-controllers-web-router";
-import { RequestLoggerMiddleware } from "../src/middleware";
+import { NoControllerWebRouter } from "./impls/no-controllers-web-router.ts";
+import { RequestLoggerMiddleware } from "../dist/middleware/index.js";
+import test from "node:test";
+import assert from "node:assert";
 
 function printPath(router: any) {
   console.error(`/${router.path}/${router.installedControllers[0].action}`);
 }
-describe("WebRouter test", () => {
+test("WebRouter test", () => {
   let app: any;
   function getAppState() {
     return {
@@ -20,35 +22,48 @@ describe("WebRouter test", () => {
     };
   }
   let appState: any;
-  describe("MyFirstWebRouter", () => {
-    beforeEach(() => {
+  test("MyFirstWebRouter", () => {
+    test.beforeEach(() => {
       appState = getAppState();
 
       app = express();
       //      app.use(express.json()); // Middleware to parse JSON
     });
-    it("Should throw when router not initialized and attempt to retrieve router", async () => {
-      const router = new MyFirstWebRouter({
-        logger: routerLogger,
-      });
+    test.it(
+      "Should throw when router not initialized and attempt to retrieve router",
+      async () => {
+        const router = new MyFirstWebRouter({
+          logger: routerLogger,
+        });
+        const errorMessage = new Error("failed not expected");
+        try {
+          router.router.bind(router)();
+          throw errorMessage;
+        } catch (e: any) {
+          assert.equal(
+            e.message,
+            `Router is not defined, did you call initialize on this router?`,
+          );
+        }
 
-      expect(router.router.bind(router)).toThrow({
-        name: "RouterNotInitializedError",
-        message: `Router is not defined, did you call initialize on this router?`,
-      });
-    });
+        // expect(router.router.bind(router)).toThrow({
+        //          name: "RouterNotInitializedError",
+        //          message: `Router is not defined, did you call initialize on this router?`,
+        //        });
+      },
+    );
 
-    it("Should return default userName from hello api", async () => {
+    test.it("Should return default userName from hello api", async () => {
       const router = new MyFirstWebRouter({
         logger: routerLogger,
       });
       await router.initialize({ appState });
       app.use("/api", router.router()); // Mount the router
       const response = await request(app).get("/api/hello");
-      expect(response.body).toEqual({ message: "Hello Jaymoney!" });
+      assert.deepEqual(response.body, { message: "Hello Jaymoney!" });
     });
 
-    it("Should update userName", async () => {
+    test.it("Should update userName", async () => {
       const router = new MyFirstWebRouter({
         logger: routerLogger,
       });
@@ -56,7 +71,7 @@ describe("WebRouter test", () => {
         appState,
       });
       app.use("/api/", router.router()); // Mount the router
-      printPath(router);
+      //      printPath(router);
 
       // TODO: take advantage of supertest chaining methods
       const response = await request(app)
@@ -73,7 +88,7 @@ describe("WebRouter test", () => {
       //      });
     });
 
-    it("Should get from hello controller", async () => {
+    test.it("Should get from hello controller", async () => {
       const router = new MyFirstWebRouter({
         logger: routerLogger,
       });
@@ -81,7 +96,7 @@ describe("WebRouter test", () => {
         appState,
       });
       app.use("/api/", router.router()); // Mount the router
-      printPath(router);
+      //     printPath(router);
 
       // TODO: take advantage of supertest chaining methods
       const response = await request(app)
@@ -91,43 +106,46 @@ describe("WebRouter test", () => {
         .expect({ message: "Hello Jaymoney!" });
     });
 
-    it("Should update use global state to show creator and create time", async () => {
-      const router = new MyFirstWebRouter({
-        logger: routerLogger,
-      });
-      const createdAt = Date.now();
-      const creatorName = "SwizzyWeb";
-
-      await router.initialize({
-        appState: {
-          memoryDb: {},
-          creatorName,
-          createdAt,
-          currentUserName: "WannaWatchMeCode",
-        },
-      });
-
-      app.use("/api/", router.router()); // Mount the router
-      // TODO: take advantage of supertest chaining methods
-      const response = await request(app)
-        .get("/api/creator/")
-        .send()
-        .expect("Content-Type", /json/)
-        .expect(200)
-        .expect({
-          message: `The creator of this app is ${creatorName}`,
-          createdAt,
+    test.it(
+      "Should update use global state to show creator and create time",
+      async () => {
+        const router = new MyFirstWebRouter({
+          logger: routerLogger,
         });
-    });
+        const createdAt = Date.now();
+        const creatorName = "SwizzyWeb";
 
-    it("Should set default path to api", () => {
+        await router.initialize({
+          appState: {
+            memoryDb: {},
+            creatorName,
+            createdAt,
+            currentUserName: "WannaWatchMeCode",
+          },
+        });
+
+        app.use("/api/", router.router()); // Mount the router
+        // TODO: take advantage of supertest chaining methods
+        const response = await request(app)
+          .get("/api/creator/")
+          .send()
+          .expect("Content-Type", /json/)
+          .expect(200)
+          .expect({
+            message: `The creator of this app is ${creatorName}`,
+            createdAt,
+          });
+      },
+    );
+
+    test.it("Should set default path to api", () => {
       const router = new MyFirstWebRouter({
         logger: routerLogger,
       });
-      expect(router.path).toEqual("api");
+      assert.equal(router.path, "api");
     });
 
-    it("Should throw on router already initialized", async () => {
+    test.it("Should throw on router already initialized", async () => {
       const router = new MyFirstWebRouter({
         logger: routerLogger,
       });
@@ -135,14 +153,12 @@ describe("WebRouter test", () => {
       await router.initialize({ appState });
       try {
         await router.initialize({ appState });
-      } catch (e) {
-        expect(e).toMatchObject({
-          error: "WebRouterAlreadyInitializedException",
-          message: "Web router is already initialized",
-        });
+      } catch (e: any) {
+        assert.equal(e.error, "WebRouterAlreadyInitializedException");
+        assert.equal(e.message, "Web router is already initialized");
       }
     });
-    it("Should throw on installedControllers exception", async () => {
+    test.it("Should throw on installedControllers exception", async () => {
       const router = new MyFirstWebRouter({
         logger: routerLogger,
       });
@@ -154,77 +170,77 @@ describe("WebRouter test", () => {
       try {
         await router.initialize({ appState });
       } catch (e: any) {
-        expect(e).toMatchObject({
-          message: "Error initializing router",
-        });
+        assert.equal(e.message, "Error initializing router");
 
-        expect(e.stack).toBeDefined();
-        expect(e.error).toEqual("ForcedInstallControllersException");
+        assert.notEqual(e.stack, undefined);
+        assert.equal(e.error, "ForcedInstallControllersException");
       }
     });
 
-    it("Should throw with included stack on installedControllers throws exception with stack", async () => {
-      const router = new MyFirstWebRouter({
-        logger: routerLogger,
-      });
-      const exception = {
-        type: "ForcedInstallControllersException",
-        message: "An exception was forced",
-        stack: new Error("ForcedInstallControllersException"),
-      };
-
-      // @ts-ignore
-      router.installControllers = () => {
-        throw exception;
-      };
-      try {
-        await router.initialize({ appState });
-      } catch (e: any) {
-        expect(e).toMatchObject({
-          message: "Error initializing router",
-          error: exception,
-          stack: exception.stack,
+    test.it(
+      "Should throw with included stack on installedControllers throws exception with stack",
+      async () => {
+        const router = new MyFirstWebRouter({
+          logger: routerLogger,
         });
+        const exception = {
+          type: "ForcedInstallControllersException",
+          message: "An exception was forced",
+          stack: new Error("ForcedInstallControllersException"),
+        };
 
-        expect(e.stack).toBeDefined();
-      }
-    });
+        // @ts-ignore
+        router.installControllers = () => {
+          throw exception;
+        };
+        try {
+          await router.initialize({ appState });
+        } catch (e: any) {
+          assert.equal(e.message, "Error initializing router");
+          assert.deepEqual(e.error, exception);
+          assert.deepEqual(e.stack, exception.stack);
 
-    it("Should return empty state before initialize", () => {
+          assert.notEqual(e.stack, undefined);
+        }
+      },
+    );
+
+    test.it("Should return empty state before initialize", () => {
       const router = new NoControllerWebRouter({ logger: routerLogger });
       const state: any = router.getState();
-      expect(state).toEqual({});
+      assert.deepEqual(state, {});
     });
 
-    it("Should not install non existing controllers", async () => {
+    test.it("Should not install non existing controllers", async () => {
       const router: any = new NoControllerWebRouter({
         logger: routerLogger,
       });
 
       await router.initialize({ appState });
-      expect(router.installedControllers.length).toEqual(0);
-      expect(router.actualRouter).toBeDefined();
-      expect(router.webControllerClasses.length).toEqual(0);
+      assert.equal(router.installedControllers.length, 0);
+      assert.notEqual(router.actualRouter, undefined);
+      assert.equal(router.webControllerClasses.length, 0);
     });
 
-    it("Should throw on router already initialized with not controllers", async () => {
-      const router: any = new NoControllerWebRouter({
-        logger: routerLogger,
-      });
-
-      await router.initialize({ appState });
-
-      try {
-        await router.initialize({ appState });
-      } catch (e: any) {
-        expect(e).toMatchObject({
-          error: "WebRouterAlreadyInitializedException",
-          message: "Web router is already initialized",
+    test.it(
+      "Should throw on router already initialized with not controllers",
+      async () => {
+        const router: any = new NoControllerWebRouter({
+          logger: routerLogger,
         });
-      }
-    });
 
-    it("Should maintain state between different controllers", async () => {
+        await router.initialize({ appState });
+
+        try {
+          await router.initialize({ appState });
+        } catch (e: any) {
+          assert.equal(e.error, "WebRouterAlreadyInitializedException");
+          assert.equal(e.message, "Web router is already initialized");
+        }
+      },
+    );
+
+    test.it("Should maintain state between different controllers", async () => {
       const router = new MyFirstWebRouter({
         logger: routerLogger,
       });
@@ -265,7 +281,7 @@ describe("WebRouter test", () => {
         });
     });
 
-    it("Should work with installed middleware", async () => {
+    test.it("Should work with installed middleware", async () => {
       const router = new MyFirstWebRouter({
         logger: routerLogger,
         middleware: [RequestLoggerMiddleware],

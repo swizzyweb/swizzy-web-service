@@ -1,16 +1,20 @@
 import {
   WebRouter,
-  IWebRouterProps,
-  IWebRouterInitProps,
-} from "../../src/router/web-router";
-import { DefaultStateExporter } from "../../src/state/state-converter";
-import { SwizzyMiddleware } from "../../src/middleware";
-import { NameWebController } from "./controller/name-web-controller";
-import { HelloWebController } from "./controller/hello-web-controller";
-import { CreatorWebController } from "./controller/creator-web-controller";
-import { ILogger } from "@swizzyweb/swizzy-common";
-import { TestRouterState } from "./state/test-router-state";
-
+  //  IWebRouterProps,
+  //  IWebRouterInitProps,
+} from "../../dist/router/web-router.js";
+import { DefaultStateExporter } from "../../dist/state/state-converter.js";
+//import { SwizzyMiddleware } from "../../dist/middleware/index.js";
+import { NameWebController } from "./controller/name-web-controller.ts";
+import { HelloWebController } from "./controller/hello-web-controller.ts";
+import { CreatorWebController } from "./controller/creator-web-controller.ts";
+//import { ILogger } from "@swizzyweb/swizzy-common";
+//import { TestRouterState } from "./state/test-router-state.ts";
+type SwizzyMiddleware<T> = any;
+interface TestRouterState {}
+interface IWebRouterProps<T, T2> {}
+type WebControllerFunction = any;
+type IWebRouterInitProps<T> = any;
 export interface IMyFirstWebRouterState {
   memoryDb: any;
   currentUserName?: string;
@@ -20,7 +24,7 @@ export interface IMyFirstWebRouterState {
 
 export interface IMyFirstWebRouterProps
   extends IWebRouterProps<any, TestRouterState> {
-  logger: ILogger<any>;
+  logger: any; //ILogger<any>;
   middleware?: SwizzyMiddleware<TestRouterState>[];
 }
 

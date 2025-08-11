@@ -1,12 +1,19 @@
 import {
   WebRouter,
-  IWebRouterProps,
-  IWebRouterInitProps,
-} from "../../src/router/web-router";
-import { DefaultStateExporter } from "../../src/state/state-converter";
-import { SwizzyMiddleware } from "../../src/middleware";
-import { ILogger } from "@swizzyweb/swizzy-common";
-import { TestRouterState } from "./state/test-router-state";
+  //IWebRouterProps,
+  //  IWebRouterInitProps,
+} from "../../dist/router/web-router.js";
+import { DefaultStateExporter } from "../../dist/state/state-converter.js";
+//import { SwizzyMiddleware } from "../../dist/middleware/index.js";
+//import { ILogger } from "@swizzyweb/swizzy-common";
+//import { TestRouterState } from "./state/test-router-state.ts";
+type SwizzyMiddleware<T> = any;
+type IWebRouterProps<T, T2> = any;
+type IWebRouterInitProps<T> = any;
+type ILogger<T> = any;
+interface TestRouterState {}
+interface IWebControllerInitProps<T> {}
+type WebControllerFunction = any;
 
 export interface INoControllerWebRouterState {
   memoryDb: any;

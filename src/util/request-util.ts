@@ -1,6 +1,6 @@
 // @ts-ignore
 import { Request } from "@swizzyweb/express";
-import { SwizzyRequest } from "../model/swizzy-request";
+import { SwizzyRequest } from "../model/swizzy-request.js";
 
 function isSwizzyRequest(req: Request): boolean {
   return req.swizzy != undefined;

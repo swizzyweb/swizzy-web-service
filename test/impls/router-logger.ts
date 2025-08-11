@@ -1,4 +1,4 @@
-import { SwizzyWinstonLogger } from "../../src/common";
+import { SwizzyWinstonLogger } from "../../dist/common/index.js";
 
 const LOG_LEVEL = process.env.LOG_LEVEL ?? "error";
 

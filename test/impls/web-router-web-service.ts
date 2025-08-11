@@ -2,12 +2,12 @@ import {
   RequestIdMiddleware,
   RequestLoggerMiddleware,
   SwizzyRequestMiddleware,
-} from "../../src/middleware";
-import { WebService } from "../../src/service";
-import { IWebServiceProps } from "../../src/service";
-import { MyFirstWebRouter } from "./test-web-router";
-
-export interface IWebRouterWebServiceProps extends IWebServiceProps<any> {}
+} from "../../dist/middleware/index.js";
+import { WebService } from "../../dist/service/index.js";
+//import { IWebServiceProps } from "../../dist/service/index.js";
+import { MyFirstWebRouter } from "./test-web-router.ts";
+type IWebServiceProps<T> = any;
+type IWebRouterWebServiceProps = any;
 
 export class WebRouterWebService extends WebService<any> {
   constructor(props: IWebRouterWebServiceProps) {

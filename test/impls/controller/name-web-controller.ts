@@ -1,13 +1,18 @@
 import {
-  IWebControllerInitProps,
+  //  IWebControllerInitProps,
   RequestMethod,
   WebController,
-  WebControllerFunction,
-} from "../../../src/controller";
-import { DefaultStateExporter } from "../../../src/state/state-converter";
+  //  WebControllerFunction,
+} from "../../../dist/controller/index.js";
+import { DefaultStateExporter } from "../../../dist/state/state-converter.js";
 // @ts-ignore
-import { Request, Response, json } from "@swizzyweb/express";
-import { TestRouterState } from "../state/test-router-state";
+import express from "@swizzyweb/express";
+
+// @ts-ignore
+//import { TestRouterState } from "../state/test-router-state.ts";
+interface TestRouterState {}
+interface IWebControllerInitProps<T> {}
+type WebControllerFunction = any;
 
 export interface NameWebControllerState {
   currentUserName?: string;
@@ -24,7 +29,7 @@ export class NameWebController extends WebController<
       method: RequestMethod.post,
       action: "name",
       logger: props.logger,
-      middleware: [...(props.middleware ?? [json])],
+      middleware: [...(props.middleware ?? [express.json])],
     });
   }
 
@@ -33,7 +38,10 @@ export class NameWebController extends WebController<
   ): Promise<WebControllerFunction> {
     const { logger } = this;
     const getState = this.getState.bind(this);
-    return async function NameController(req: Request, res: Response) {
+    return async function NameController(
+      req: express.Request,
+      res: express.Response,
+    ) {
       logger.info("Name controller entered");
       //console.error(
       //  `Hit name controller with body: ${JSON.stringify(req.body)}`,

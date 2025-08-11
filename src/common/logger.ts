@@ -3,6 +3,7 @@ import { createLogger, format, info, level, Logger, transports } from "winston";
 import * as path from "path";
 import "winston-daily-rotate-file";
 import { mkdirSync } from "fs";
+
 export interface ISwizzyLoggerProps {
   hostName: string;
   appName: string;
@@ -30,6 +31,7 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
       pid,
       ownerName,
       logFileName,
+      logDir,
     } = props;
 
     const label = `${appendOrNothing(hostName)}${appendOrNothing(port)}${appendOrNothing(instanceId)}${appendOrNothing(appName)}${appendOrNothing(pid)}${appendOrNothing(ownerName)}`;
@@ -54,8 +56,15 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
       format.label({ label }),
     );
 
-    if (appDataRoot) {
-      const dirname = path.join(appDataRoot, "/logs");
+    // Checkout this sorcery!
+    let loggerDir = logDir
+      ? logDir
+      : appDataRoot
+        ? `${appDataRoot}`
+        : undefined;
+
+    if (loggerDir) {
+      const dirname = path.join(loggerDir, "/logs");
       mkdirSync(dirname, { recursive: true });
 
       // TODO: this seems to be async, so the logger is not always initialized
@@ -69,10 +78,11 @@ export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
           datePattern: "YYYY-MM-DD-HH",
           zippedArchive: true,
           frequency: "24h",
+          utc: true,
         }),
       );
 
-      resultMessage += `appDataRoot set, setting log directory to ${dirname}`;
+      resultMessage += `loggerDir set, setting log directory to ${dirname}`;
     }
 
     this.logger = createLogger({

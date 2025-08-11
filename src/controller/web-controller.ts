@@ -1,15 +1,18 @@
 import { ILogger } from "@swizzyweb/swizzy-common";
-import { SwizzyMiddleware, SwizzyMiddlewareFunction } from "../middleware";
-import { StateConverter } from "../state/state-converter";
+import {
+  SwizzyMiddleware,
+  SwizzyMiddlewareFunction,
+} from "../middleware/index.js";
+import { StateConverter } from "../state/state-converter.js";
 import {
   IInternalWebControllerProps,
   InstallableController,
   IWebController,
   IWebControllerInitProps,
   WebControllerFunction,
-} from "./types";
-import { RequestMethod } from "./request-method";
-import { middlewaresToJson, stateConverterToJson } from "../util";
+} from "./types.js";
+import { RequestMethod } from "./request-method.js";
+import { middlewaresToJson, stateConverterToJson } from "../util/index.js";
 
 /**
  * Base web controller class to be used by routers.

@@ -1,7 +1,7 @@
 import { ILogger } from "@swizzyweb/swizzy-common";
 // @ts-ignore
 import { NextFunction, Request, Response } from "@swizzyweb/express";
-import { SwizzyMiddlewareProps } from "./swizzy-middleware";
+import { SwizzyMiddlewareProps } from "./swizzy-middleware.js";
 
 export interface RequestLoggerMiddlewareProps<STATE>
   extends SwizzyMiddlewareProps<STATE> {

@@ -4,7 +4,7 @@ import {
   SwizzyMiddleware,
   SwizzyMiddlewareFunction,
   SwizzyMiddlewareProps,
-} from "./swizzy-middleware";
+} from "./swizzy-middleware.js";
 
 export const SwizzyRequestMiddleware: SwizzyMiddleware<any> =
   function SwizzyRequestMiddlewareFunction(props: SwizzyMiddlewareProps<any>) {

@@ -1,5 +1,5 @@
-import { SwizzyMiddleware } from "../middleware";
-import { StateConverter } from "../state";
+import { SwizzyMiddleware } from "../middleware/index.js";
+import { StateConverter } from "../state/index.js";
 
 export function middlewareToJson(middleware: SwizzyMiddleware<any>): any {
   return { name: middleware.name };

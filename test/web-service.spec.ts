@@ -1,14 +1,20 @@
-import { describe, expect, test } from "@jest/globals";
+//import { describe, expect, test } from "@mock/globals";
 //import { WebRouterWebService } from "./impls/web-router-web-service";
+import expect from "expect";
 import path from "path";
 import request from "supertest";
 // @ts-ignore
 import express from "@swizzyweb/express";
 import {
-  IWebRouterWebServiceProps,
+  //  IWebRouterWebServiceProps,
   WebRouterWebService,
-} from "./impls/web-router-web-service";
-import { webServiceLogger } from "./impls/router-logger";
+} from "./impls/web-router-web-service.ts";
+import { webServiceLogger } from "./impls/router-logger.ts";
+import test, { mock } from "node:test";
+import assert from "node:assert";
+
+type IWebRouterWebServiceProps = any;
+
 const logger = webServiceLogger;
 const port = 3000;
 const state: any = {
@@ -18,11 +24,11 @@ const state: any = {
   createdAt: Date.now(),
 };
 
-describe("Webservice tests", () => {
-  describe("Integration tests", () => {
+test("Webservice tests", () => {
+  test("Integration tests", () => {
     let app: any;
     let args: IWebRouterWebServiceProps;
-    beforeEach(() => {
+    test.beforeEach(() => {
       app = express();
       args = {
         app,
@@ -32,35 +38,38 @@ describe("Webservice tests", () => {
       };
     });
 
-    it("Should install express router", () => {
+    test.it("Should install express router", () => {
       const webservice: any = new WebRouterWebService(args);
     });
 
-    it("Should install WebRouter", async () => {
+    test.it("Should install WebRouter", async () => {
       const webservice: any = new WebRouterWebService(args);
       await webservice.install({});
     });
 
-    it("Should throw on install WebRouter when already installed", async () => {
-      const webservice: any = new WebRouterWebService(args);
-      await webservice.install({});
-
-      try {
+    test.it(
+      "Should throw on install WebRouter when already installed",
+      async () => {
+        const webservice: any = new WebRouterWebService(args);
         await webservice.install({});
-      } catch (e: any) {
-        expect(e.message).toEqual(
-          `Service ${WebRouterWebService.name} is already installed`,
-        );
-      }
-    });
 
-    it("Should uninstall WebRouter", async () => {
+        try {
+          await webservice.install({});
+        } catch (e: any) {
+          expect(e.message).toEqual(
+            `Service ${WebRouterWebService.name} is already installed`,
+          );
+        }
+      },
+    );
+
+    test.it("Should uninstall WebRouter", async () => {
       const webservice: any = new WebRouterWebService(args);
       await webservice.install({});
       await webservice.uninstall({});
     });
 
-    it("Should throw on uninstall when not installed", async () => {
+    test.it("Should throw on uninstall when not installed", async () => {
       const webservice: any = new WebRouterWebService(args);
       try {
         await webservice.uninstall({});
@@ -71,27 +80,27 @@ describe("Webservice tests", () => {
       }
     });
 
-    it("Should return installed after installed", async () => {
+    test.it("Should return installed after installed", async () => {
       const webservice: any = new WebRouterWebService(args);
       await webservice.install({});
       expect(webservice.isInstalled()).toEqual(true);
     });
 
-    it("Should not be installed before install", async () => {
+    test.it("Should not be installed before install", async () => {
       const webservice: any = new WebRouterWebService(args);
       expect(webservice.isInstalled()).toEqual(false);
     });
 
-    it("Should not be installed after uninstall", async () => {
+    test.it("Should not be installed after uninstall", async () => {
       const webservice: any = new WebRouterWebService(args);
       await webservice.install({});
       await webservice.uninstall({});
       expect(webservice.isInstalled()).toEqual(false);
     });
 
-    it("Should call use with router on install", async () => {
-      const mockApp = { use: jest.fn() };
-      const useSpy = jest.spyOn(mockApp, "use");
+    test.it("Should call use with router on install", async () => {
+      const mockApp = { use: mock.fn() };
+      const useSpy = mock.method(mockApp, "use");
       const newArgs = {
         ...args,
         app: mockApp,
@@ -99,11 +108,11 @@ describe("Webservice tests", () => {
 
       const webservice: any = new WebRouterWebService(newArgs);
       await webservice.install({});
-      expect(useSpy).toHaveBeenCalledTimes(1);
+      assert.strictEqual(mockApp.use.mock.calls.length, 1);
     });
 
-    it("Should add installed routers to installedRotuers", async () => {
-      const mockApp = { use: jest.fn() };
+    test.it("Should add installed routers to installedRotuers", async () => {
+      const mockApp = { use: mock.fn() };
       const newArgs = {
         ...args,
         app: mockApp,
@@ -111,11 +120,11 @@ describe("Webservice tests", () => {
 
       const webservice: any = new WebRouterWebService(newArgs);
       await webservice.install({});
-      expect(webservice.installedRouters.length).toEqual(1);
+      assert.strictEqual(mockApp.use.mock.calls.length, 1);
     });
 
-    it("Should call unuse with router to uninstall", async () => {
-      const mockApp = { use: jest.fn(), unuse: jest.fn() };
+    test.it("Should call unuse with router to uninstall", async () => {
+      const mockApp = { use: mock.fn(), unuse: mock.fn() };
       const newArgs = {
         ...args,
         app: mockApp,
@@ -124,28 +133,30 @@ describe("Webservice tests", () => {
       const webservice: any = new WebRouterWebService(newArgs);
 
       await webservice.install({});
-      expect(mockApp.use).toHaveBeenCalledTimes(1);
-
+      assert.strictEqual(mockApp.use.mock.calls.length, 1);
       await webservice.uninstall({});
-      expect(mockApp.unuse).toBeCalledTimes(1);
+      assert.strictEqual(mockApp.unuse.mock.calls.length, 1);
     });
 
-    it("Should remove router from installedRouters on uninstall", async () => {
-      const mockApp = { use: jest.fn(), unuse: jest.fn() };
-      const newArgs = {
-        ...args,
-        app: mockApp,
-      };
+    test.it(
+      "Should remove router from installedRouters on uninstall",
+      async () => {
+        const mockApp = { use: mock.fn(), unuse: mock.fn() };
+        const newArgs = {
+          ...args,
+          app: mockApp,
+        };
 
-      const webservice: any = new WebRouterWebService(newArgs);
+        const webservice: any = new WebRouterWebService(newArgs);
 
-      await webservice.install({});
-      await webservice.uninstall({});
+        await webservice.install({});
+        await webservice.uninstall({});
 
-      expect(webservice.installedRouters.length).toEqual(0);
-    });
+        expect(webservice.installedRouters.length).toEqual(0);
+      },
+    );
 
-    it("Should throw on fail install routers", async () => {
+    test.it("Should throw on fail install routers", async () => {
       const service = new WebRouterWebService({
         ...args,
       });
@@ -165,7 +176,7 @@ describe("Webservice tests", () => {
       }
     });
 
-    it("Should throw on fail uninstall routers", async () => {
+    test.it("Should throw on fail uninstall routers", async () => {
       const service = new WebRouterWebService({
         ...args,
       });
@@ -191,10 +202,10 @@ describe("Webservice tests", () => {
     //});
   });
 
-  describe("Integration tests", () => {
+  test("Integration tests", () => {
     let app: any;
     let args: IWebRouterWebServiceProps;
-    beforeEach(() => {
+    test.beforeEach(() => {
       app = express();
       const state = {
         memoryDb: {},
@@ -211,7 +222,7 @@ describe("Webservice tests", () => {
       };
     });
 
-    it("Should maintain state between controllers", async () => {
+    test.it("Should maintain state between controllers", async () => {
       const webService = new WebRouterWebService(args);
 
       await webService.install({});
@@ -245,7 +256,7 @@ describe("Webservice tests", () => {
           message: `Username has been updated from WannaWatchMeCode to AnadaOne`,
         });
     });
-    it("Should toString without failing", async () => {
+    test.it("Should toString without failing", async () => {
       const webService = new WebRouterWebService(args);
 
       await webService.install({});

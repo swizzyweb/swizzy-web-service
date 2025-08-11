@@ -1,13 +1,18 @@
 import {
-  IWebControllerInitProps,
+  //  IWebControllerInitProps,
   RequestMethod,
   WebController,
-  WebControllerFunction,
-} from "../../../src/controller";
-import { DefaultStateExporter } from "../../../src/state";
+  //  WebControllerFunction,
+} from "../../../dist/controller/index.js";
+import { DefaultStateExporter } from "../../../dist/state/index.js";
 // @ts-ignore
-import { Request, Response } from "@swizzyweb/express";
-import { TestRouterState } from "../state/test-router-state";
+//import { Request, Response } from "@swizzyweb/express";
+import express from "@swizzyweb/express";
+//import { TestRouterState } from "../state/test-router-state.ts";
+
+interface TestRouterState {}
+interface IWebControllerInitProps<T> {}
+type WebControllerFunction = any;
 
 export interface HelloWebControllerState {
   currentUserName?: string;
@@ -32,7 +37,7 @@ export class HelloWebController extends WebController<
     props: IWebControllerInitProps<any>,
   ): Promise<WebControllerFunction> {
     const getState = this.getState.bind(this);
-    return (req: Request, res: Response) => {
+    return (req: express.Request, res: express.Response) => {
       res.json({ message: `Hello ${getState()?.currentUserName}!` });
     };
   }

@@ -1,7 +1,10 @@
 import { ILogger } from "@swizzyweb/swizzy-common";
-import { SwizzyMiddleware, SwizzyMiddlewareFunction } from "../middleware";
-import { StateConverter } from "../state";
-import { RequestMethod } from "./request-method";
+import {
+  SwizzyMiddleware,
+  SwizzyMiddlewareFunction,
+} from "../middleware/index.js";
+import { StateConverter } from "../state/index.js";
+import { RequestMethod } from "./request-method.js";
 
 export type NewWebControllerClass<ROUTER_STATE, CONTROLLER_STATE> = new (
   props: IWebControllerProps<ROUTER_STATE, CONTROLLER_STATE>,

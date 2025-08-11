@@ -29,3 +29,7 @@ State can be injected into a SwizzyWebService to share context between routers a
 #### State Converter
 
 State converters are used to transform state between each of the layers. WebRouters and WebControllers each have a state converter that takes in the parent state and transforms it to the current layers state. IE: WebServiceState -> WebRouterState, WebRouterState -> WebControllerState.
+
+## Note
+
+Tests now require node 24 as of v0.5.0

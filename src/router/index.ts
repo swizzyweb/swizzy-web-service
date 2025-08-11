@@ -1,1 +1,1 @@
-export * from "./web-router";
+export * from "./web-router.js";

@@ -1,3 +1,3 @@
-export * from "./web-controller";
-export * from "./types";
-export * from "./request-method";
+export * from "./web-controller.js";
+export * from "./types.js";
+export * from "./request-method.js";

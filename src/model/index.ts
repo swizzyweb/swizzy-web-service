@@ -1,3 +1,3 @@
-export * from "./swizzy-request-store";
-export * from "./swizzy-request";
-export * from "./swizzy-response";
+export * from "./swizzy-request-store.js";
+export * from "./swizzy-request.js";
+export * from "./swizzy-response.js";

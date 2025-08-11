@@ -1,3 +1,3 @@
-export * from "./web-service";
-export * from "./interface";
-export * from "./types";
+export * from "./web-service.js";
+export * from "./interface.js";
+export * from "./types.js";

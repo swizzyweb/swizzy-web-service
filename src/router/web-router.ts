@@ -1,15 +1,15 @@
 import { ILogger } from "@swizzyweb/swizzy-common";
 // @ts-ignore
 import { Router, json } from "@swizzyweb/express";
-import { SwizzyMiddleware } from "../middleware";
+import { SwizzyMiddleware } from "../middleware/index.js";
 import {
   IWebController,
   NewWebControllerClass,
   WebControllerFunction,
-} from "../controller";
-import { StateConverter } from "../state";
+} from "../controller/index.js";
+import { StateConverter } from "../state/index.js";
 import path from "path";
-import { middlewaresToJson, stateConverterToJson } from "../util";
+import { middlewaresToJson, stateConverterToJson } from "../util/index.js";
 
 export type NewWebRouterClass<APP_STATE, ROUTER_STATE> = new (
   props: IWebRouterProps<APP_STATE, ROUTER_STATE>,

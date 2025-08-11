@@ -10,7 +10,7 @@ import {
   IWebRouter,
   SwizzyWebRouterClass,
   WebRouter,
-} from "../router/web-router";
+} from "../router/web-router.js";
 import path from "path";
 import {
   SaveInstanceProps,
@@ -18,10 +18,10 @@ import {
   UseRouterProps,
   UseRouterResult,
   UninstallRouterProps,
-} from "./interface";
-import { assertOrThrow } from "../util/assertion-util";
-import { SwizzyMiddleware } from "../middleware";
-import { middlewaresToJson, middlewareToJson } from "../util";
+} from "./interface.js";
+import { assertOrThrow } from "../util/assertion-util.js";
+import { SwizzyMiddleware } from "../middleware/index.js";
+import { middlewaresToJson, middlewareToJson } from "../util/index.js";
 
 export interface IRunResult {}
 

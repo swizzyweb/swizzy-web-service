@@ -1,11 +1,11 @@
 // @ts-ignore
 import express, { Application, Router } from "@swizzyweb/express";
 import { ILogger } from "@swizzyweb/swizzy-common";
-import { IWebRouter, SwizzyWebRouterClass } from "../router/web-router";
+import { IWebRouter, SwizzyWebRouterClass } from "../router/web-router.js";
 import http from "http";
 import https from "https";
-import { IBaseUseUnuseProps } from "../common";
-import { SwizzyMiddleware } from "../middleware";
+import { IBaseUseUnuseProps } from "../common/index.js";
+import { SwizzyMiddleware } from "../middleware/index.js";
 
 /**
  * Required fields for client facing WebServices.

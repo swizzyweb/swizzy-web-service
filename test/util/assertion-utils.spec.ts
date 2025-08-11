@@ -1,9 +1,14 @@
-import { describe, expect, test } from "@jest/globals";
+//import { describe, expect, test } from "@jest/globals";
+
 import {
-  ISwizzyLoggerProps,
+  //  ISwizzyLoggerProps,
   SwizzyWinstonLogger,
-} from "../../src/common/logger";
-import { assertOrThrow } from "../../src/util/assertion-util";
+} from "../../dist/common/logger.js";
+import { assertOrThrow } from "../../dist/util/assertion-util.js";
+import test from "node:test";
+import expect from "expect";
+
+type ISwizzyLoggerProps = any;
 
 let defaultLogger;
 const baseLoggerProps: ISwizzyLoggerProps = {
@@ -20,12 +25,12 @@ const failureArgs: Args = {
   right: 0,
 };
 
-describe("Logger tests", () => {
-  beforeEach(() => {
+test("Logger tests", () => {
+  test.beforeEach(() => {
     defaultLogger = new SwizzyWinstonLogger(baseLoggerProps);
   });
 
-  it("Should throw with no message", () => {
+  test.it("Should throw with no message", () => {
     try {
       assertOrThrow({
         args: failureArgs,
@@ -38,7 +43,7 @@ describe("Logger tests", () => {
     }
   });
 
-  it("Should throw with error message function", () => {
+  test.it("Should throw with error message function", () => {
     const messageFunction = (args: Args) =>
       `${args.left} does not equal ${args.right}`;
     try {
@@ -52,7 +57,7 @@ describe("Logger tests", () => {
     }
   });
 
-  it("Should throw with error message", () => {
+  test.it("Should throw with error message", () => {
     const message = `assert failed`;
     try {
       assertOrThrow({
