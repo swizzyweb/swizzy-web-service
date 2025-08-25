@@ -1,9 +1,15 @@
+/**
+ * @module Loggers
+ */
 import { BaseLogger, BrowserLogger, ILogger } from "@swizzyweb/swizzy-common";
 import { createLogger, format, info, level, Logger, transports } from "winston";
 import * as path from "path";
 import "winston-daily-rotate-file";
 import { mkdirSync } from "fs";
 
+/**
+ * Constructor props for SwizzyWinstonLogger.
+ */
 export interface ISwizzyLoggerProps {
   hostName: string;
   appName: string;
@@ -17,7 +23,13 @@ export interface ISwizzyLoggerProps {
   logFileName?: string;
 }
 
+/**
+ * Winston based logger.
+ */
 export class SwizzyWinstonLogger extends BaseLogger<ISwizzyLoggerProps> {
+  /**
+   * Winston logger.
+   **/
   logger: Logger;
   constructor(props: ISwizzyLoggerProps) {
     super(props);

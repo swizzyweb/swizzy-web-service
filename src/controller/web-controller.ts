@@ -27,11 +27,29 @@ export abstract class WebController<ROUTER_STATE, CONTROLLER_STATE>
    */
   actualController?: WebControllerFunction;
   state?: CONTROLLER_STATE;
+  /**
+   * Logger
+   */
   protected logger: ILogger<any>;
+  /**
+   * Converts router state to this controller state.
+   */
   protected stateConverter: StateConverter<ROUTER_STATE, CONTROLLER_STATE>;
+  /**
+   * Url Action, ie: /service/router/controller <-- this.
+   */
   public readonly action: string;
+  /**
+   * Htto method.
+   */
   public readonly method: RequestMethod;
+  /**
+   * Swizzy middleware to execute before the controller function invocation.
+   */
   private middleware: SwizzyMiddleware<CONTROLLER_STATE>[];
+  /**
+   * Constructor with internal props.
+   */
   constructor(
     props: IInternalWebControllerProps<ROUTER_STATE, CONTROLLER_STATE>,
   ) {

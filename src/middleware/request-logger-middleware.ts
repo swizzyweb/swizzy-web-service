@@ -3,11 +3,20 @@ import { ILogger } from "@swizzyweb/swizzy-common";
 import { NextFunction, Request, Response } from "@swizzyweb/express";
 import { SwizzyMiddlewareProps } from "./swizzy-middleware.js";
 
+/**
+ * RequestLoggerMiddleware props.
+ */
 export interface RequestLoggerMiddlewareProps<STATE>
   extends SwizzyMiddlewareProps<STATE> {
   logger: ILogger<any>;
+  /**
+   * WebService, WebRouter, or WebController state.
+   */
   state: STATE;
 }
+/**
+ * Middleware to log request amd response information.
+ */
 export function RequestLoggerMiddleware<STATE>(
   props: RequestLoggerMiddlewareProps<STATE>,
 ) {

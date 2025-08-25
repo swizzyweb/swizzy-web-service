@@ -1,6 +1,6 @@
 {
   "name": "@swizzyweb/swizzy-web-service",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Web service framework for swizzy dyn serve",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,10 +10,11 @@
     "clean": "rm -rf ./dist ./node_modules",
     "test": "node --test test/*.spec.ts test/**/*.spec.ts ",
     "coverage": "c8 node --test test/*.spec.ts test/**/*.spec.ts",
-    "prettier": "prettier ./src"
+    "prettier": "prettier ./src",
+    "docs": "npx typedoc src/index.ts"
   },
   "author": "WannaWatchMeCode",
-  "license": "AGPL-3.0-only",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/jest": "^29.5.14",
@@ -25,6 +26,7 @@
     "prettier": "^3.3.3",
     "supertest": "^7.1.0",
     "ts-jest": "^29.2.5",
+    "typedoc": "^0.28.10",
     "typescript": "^5.4.5"
   },
   "dependencies": {

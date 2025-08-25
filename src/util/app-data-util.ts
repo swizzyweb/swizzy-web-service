@@ -2,6 +2,10 @@ import path from "path";
 import fs from "fs";
 import { ILogger } from "@swizzyweb/swizzy-common";
 
+/**
+ * Initializes the app data root of web service,
+ * creating the directory for web service directory space.
+ */
 export function getAppDataPathFromPropsAndInitialize(
   props: GetAppDataPathFromPropsProps,
 ) {
