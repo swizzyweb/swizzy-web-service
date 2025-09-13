@@ -2,6 +2,24 @@
 
 Swizzy web service is a library for creating self contained web services. The library is object oriented and provides base implementations for all of the components necessary to get a web service up and running.
 
+## Getting Started
+
+### Install via npm
+
+```
+npm install --registry=https://npm.swizzyweb.com @swizzyweb/swizzy-web-service
+```
+
+### Sample apps
+
+#### Frontend template
+
+https://github.com/swizzyweb/swizzy-frontend-template-web-service
+
+#### Backend template
+
+https://github.com/swizzyweb/swizzy-backend-template-web-service
+
 ## Architecture
 
 The architecture of a swizzy web service is made up of 3 layers, the WebService, Router, and Controller.
