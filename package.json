@@ -1,6 +1,6 @@
 {
   "name": "@swizzyweb/swizzy-web-service",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Web service framework for swizzy dyn serve",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@swizzyweb/express": "^4.19.2",
-    "@swizzyweb/swizzy-common": "^0.3.1",
+    "@swizzyweb/swizzy-common": "^0.3.2",
     "tcp-port-used": "^1.0.2",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
@@ -48,7 +48,7 @@
     "serve"
   ],
   "bugs": {
-    "url": "https://github.com/swizzyweb/SwizzyWebService/issues"
+    "url": "https://github.com/swizzyweb/swizzy-web-service/issues"
   },
-  "homepage": "https://github.com/swizzyweb/SwizzyWebService#readme"
+  "homepage": "https://github.com/swizzyweb/swizzy-web-service#readme"
 }
