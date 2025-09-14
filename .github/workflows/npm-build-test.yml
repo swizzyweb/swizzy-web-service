@@ -22,8 +22,14 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - name: Install dependencies
-      run: npm install --registry=https://npm.swizzyweb.com
+    - name: Install swizzy-common
+      run: npm install @swizzyweb/swizzy-common --registry=https://npm.swizzyweb.com
+    
+    - name: Install express
+      run: npm install @swizzyweb/express --registry=https://npm.swizzyweb.com
+      
+    - name: Install all
+      run: npm install
       
     - name: Build
       run: npm run build
