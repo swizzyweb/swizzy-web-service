@@ -2,3 +2,7 @@ docs
 node_modules
 .github
 coverage
+unknown
+appdata
+logs
+

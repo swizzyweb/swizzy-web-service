@@ -1,6 +1,6 @@
 {
   "name": "@swizzyweb/swizzy-web-service",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "Web service framework for swizzy dyn serve",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,7 +17,6 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/express": "^4.17.21",
-    "@types/jest": "^29.5.14",
     "@types/node": "^20.12.8",
     "@types/supertest": "^6.0.2",
     "@types/tcp-port-used": "^1.0.4",
@@ -31,14 +30,13 @@
   },
   "dependencies": {
     "@swizzyweb/express": "^4.19.2",
-    "@swizzyweb/swizzy-common": "^0.3.2",
-    "tcp-port-used": "^1.0.2",
+    "@swizzyweb/swizzy-common": "^0.3.3",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://git.swizzyweb.com/swizzyweb/swizzy-web-service.git"
+    "url": "https://git.swizzyweb.com/swizzyweb/swizzy-web-service.git"
   },
   "keywords": [
     "swizzy",
