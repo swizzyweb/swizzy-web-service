@@ -1,5 +1,4 @@
-// @ts-ignore
-import { Request, Response, NextFunction } from "@swizzyweb/express";
+import { Request, Response, NextFunction } from "express";
 import {
   SwizzyMiddleware,
   SwizzyMiddlewareFunction,
@@ -11,7 +10,7 @@ import {
  */
 export const SwizzyRequestMiddleware: SwizzyMiddleware<any> =
   function SwizzyRequestMiddlewareFunction(props: SwizzyMiddlewareProps<any>) {
-    return (req: Request, res: Response, next: NextFunction) => {
+    return (req: Request & any, res: Response, next: NextFunction) => {
       req.swizzy = {};
       next();
     };

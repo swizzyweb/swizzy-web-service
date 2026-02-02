@@ -1,10 +1,23 @@
 // eslint.config.js
 import { defineConfig } from "eslint/config";
 
-export default defineConfig([
-{
-  "rules": {
-    "@typescript-eslint/ban-ts-ignore": "off",
-  "@typescript-eslint/ban-ts-comment": "off"
-  }
-}])
+import tseslint from "@typescript-eslint/eslint-plugin";
+import parser from "@typescript-eslint/parser";
+
+export default [
+  {
+    files: ["**/*.ts"],
+    languageOptions: {
+      parser,
+      parserOptions: {
+        project: "./tsconfig.json",
+      },
+    },
+    plugins: {
+      "@typescript-eslint": tseslint,
+    },
+    rules: {
+      "@typescript-eslint/no-floating-promises": "error",
+    },
+  },
+];

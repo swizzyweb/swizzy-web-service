@@ -1,6 +1,5 @@
 import { ILogger } from "@swizzyweb/swizzy-common";
-// @ts-ignore
-import { NextFunction, Request, Response } from "@swizzyweb/express";
+import { NextFunction, Request, Response } from "express";
 import { SwizzyMiddlewareProps } from "./swizzy-middleware.js";
 
 /**
@@ -24,7 +23,7 @@ export interface RequestIdMiddlewareProps<STATE>
 export function RequestIdMiddleware<STATE>(
   props: RequestIdMiddlewareProps<STATE>,
 ) {
-  return function (req: Request, res: Response, next: NextFunction) {
+  return function (req: Request & any, res: Response, next: NextFunction) {
     if (req.swizzy?.requestId) {
       next();
       return;

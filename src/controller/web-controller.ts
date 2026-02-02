@@ -13,6 +13,7 @@ import {
 } from "./types.js";
 import { RequestMethod } from "./request-method.js";
 import { middlewaresToJson, stateConverterToJson } from "../util/index.js";
+import { trimSlashes } from "../util/trim-slashes.js";
 
 /**
  * Base web controller class to be used by routers.
@@ -56,7 +57,7 @@ export abstract class WebController<ROUTER_STATE, CONTROLLER_STATE>
     this.name = props.name;
     this.logger = props.logger.clone({ owner: this.name });
     this.middleware = props.middleware ?? [];
-    this.action = props.action;
+    this.action = trimSlashes(props.action);
     this.method = props.method;
     this.stateConverter = props.stateConverter;
   }

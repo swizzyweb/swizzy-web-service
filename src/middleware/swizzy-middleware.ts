@@ -1,6 +1,7 @@
 import { ILogger } from "@swizzyweb/swizzy-common";
-// @ts-ignore
-import { NextFunction, Request, Response } from "@swizzyweb/express";
+import express, { NextFunction, Request, Response } from "express";
+import path from "path";
+import { SwizzyRequestMiddleware } from "./swizzy-request-middleware.js";
 
 /**
  * Base middleware props

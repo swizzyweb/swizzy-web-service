@@ -1,14 +1,9 @@
 import {
-  //  IWebControllerInitProps,
   RequestMethod,
   WebController,
-  //  WebControllerFunction,
 } from "../../../dist/controller/index.js";
 import { DefaultStateExporter } from "../../../dist/state/index.js";
-// @ts-ignore
-//import { Request, Response } from "@swizzyweb/express";
-import express from "@swizzyweb/express";
-//import { TestRouterState } from "../state/test-router-state.ts";
+import express from "express";
 
 interface TestRouterState {}
 interface IWebControllerInitProps<T> {}

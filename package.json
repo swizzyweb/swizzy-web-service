@@ -1,6 +1,6 @@
 {
   "name": "@swizzyweb/swizzy-web-service",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "description": "Web service framework for swizzy dyn serve",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,17 +11,21 @@
     "test": "node --test test/*.spec.ts test/**/*.spec.ts ",
     "coverage": "c8 node --test test/*.spec.ts test/**/*.spec.ts",
     "prettier": "prettier ./src",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "docs": "npx typedoc src/index.ts"
   },
   "author": "WannaWatchMeCode",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/jest": "^29.5.14",
+    "@types/express": "^5.0.6",
     "@types/node": "^20.12.8",
     "@types/supertest": "^6.0.2",
     "@types/tcp-port-used": "^1.0.4",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
     "c8": "^10.1.3",
+    "eslint": "^9.39.2",
     "expect": "^30.0.5",
     "prettier": "^3.3.3",
     "supertest": "^7.1.0",
@@ -30,15 +34,15 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@swizzyweb/express": "^4.19.2",
-    "@swizzyweb/swizzy-common": "^0.3.2",
-    "tcp-port-used": "^1.0.2",
+    "@swizzyweb/express-unuse": "v1.0.1",
+    "@swizzyweb/swizzy-common": "^0.3.3",
+    "express": "^5.2.1",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://git.swizzyweb.com/swizzyweb/swizzy-web-service.git"
+    "url": "https://git.swizzyweb.com/swizzyweb/swizzy-web-service.git"
   },
   "keywords": [
     "swizzy",
