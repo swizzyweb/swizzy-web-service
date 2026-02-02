@@ -1,12 +1,16 @@
 import { MyFirstWebRouter } from "./impls/test-web-router.ts";
-import { routerLogger } from "./impls/router-logger.ts";
+import { middlewareLogger, routerLogger } from "./impls/router-logger.ts";
 import request from "supertest";
-// @ts-ignore
-import express from "@swizzyweb/express";
+import express from "express";
 import { NoControllerWebRouter } from "./impls/no-controllers-web-router.ts";
-import { RequestLoggerMiddleware } from "../dist/middleware/index.js";
+import {
+  RequestIdMiddleware,
+  RequestLoggerMiddleware,
+} from "../dist/middleware/index.js";
 import test from "node:test";
 import assert from "node:assert";
+import { ConfigurableControllerWebRouter } from "./impls/configurable-controller-web-router.ts";
+import { CreatorWebController } from "./impls/controller/creator-web-controller.ts";
 
 function printPath(router: any) {
   console.error(`/${router.path}/${router.installedControllers[0].action}`);
@@ -71,7 +75,6 @@ test("WebRouter test", () => {
         appState,
       });
       app.use("/api/", router.router()); // Mount the router
-      //      printPath(router);
 
       // TODO: take advantage of supertest chaining methods
       const response = await request(app)
@@ -82,10 +85,6 @@ test("WebRouter test", () => {
         .expect({
           message: `Username has been updated from Jaymoney to WannaWatchMeCode`,
         });
-      //expect(response.statusCode).toEqual(200);
-      //      expect(response.body).toEqual({
-      //      message: `Username has been updated from WannaWatchMeCode to Jaymoney`,
-      //      });
     });
 
     test.it("Should get from hello controller", async () => {
@@ -96,7 +95,6 @@ test("WebRouter test", () => {
         appState,
       });
       app.use("/api/", router.router()); // Mount the router
-      //     printPath(router);
 
       // TODO: take advantage of supertest chaining methods
       const response = await request(app)
@@ -319,6 +317,20 @@ test("WebRouter test", () => {
         .expect({
           message: `Username has been updated from WannaWatchMeCode to AnadaOne`,
         });
+    });
+
+    test(`Should uninstall controller middlewares`, async () => {
+      const router = new ConfigurableControllerWebRouter({
+        webControllerClasses: [CreatorWebController],
+        middleware: [RequestIdMiddleware, RequestLoggerMiddleware],
+        logger: routerLogger,
+      });
+
+      await router.initialize({
+        appState,
+      });
+
+      (router as any).uninstallMiddleware();
     });
   });
 });

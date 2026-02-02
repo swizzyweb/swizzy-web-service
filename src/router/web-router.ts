@@ -1,15 +1,26 @@
-import { ILogger } from "@swizzyweb/swizzy-common";
-// @ts-ignore
-import { Router, json } from "@swizzyweb/express";
-import { SwizzyMiddleware } from "../middleware/index.js";
+import { BrowserLogger, ILogger } from "@swizzyweb/swizzy-common";
 import {
-  IWebController,
-  NewWebControllerClass,
-  WebControllerFunction,
-} from "../controller/index.js";
+  Request,
+  Response,
+  NextFunction,
+  Router,
+  IRouter,
+  Application,
+} from "express";
+import {
+  SwizzyMiddleware,
+  SwizzyMiddlewareFunction,
+} from "../middleware/index.js";
+import { IWebController, NewWebControllerClass } from "../controller/index.js";
 import { StateConverter } from "../state/index.js";
 import path from "path";
 import { middlewaresToJson, stateConverterToJson } from "../util/index.js";
+import {
+  unuseRouter,
+  unuseMiddleware,
+  unuseController,
+} from "@swizzyweb/express-unuse";
+import { trimSlashes } from "../util/trim-slashes.js";
 
 export type NewWebRouterClass<APP_STATE, ROUTER_STATE> = new (
   props: IWebRouterProps<APP_STATE, ROUTER_STATE>,
@@ -22,9 +33,14 @@ export type SwizzyWebRouterClass<APP_STATE, ROUTER_STATE> = NewWebRouterClass<
 > &
   isWebRouter;
 
+export interface UninstallRouterProps {
+  app: Application;
+}
+
 export interface IWebRouter<APP_STATE, ROUTER_STATE> {
   readonly name: string;
   initialize(props: IWebRouterInitProps<APP_STATE>): Promise<void>;
+  uninstall(props: UninstallRouterProps): void;
   router(): any; //Router;
   getState(): ROUTER_STATE;
   path: string;
@@ -33,11 +49,11 @@ export interface IWebRouter<APP_STATE, ROUTER_STATE> {
 }
 
 export interface IWebRouterProps<APP_STATE, ROUTER_STATE> {
-  /**
-   * TODO: make required
-   */
   logger: ILogger<any>;
 }
+
+installedMiddlewares: (req: Request, res: Response, next: NextFunction) =>
+  void [];
 
 export interface IInternalWebRouterProps<APP_STATE, ROUTER_STATE>
   extends IWebRouterProps<APP_STATE, ROUTER_STATE> {
@@ -75,7 +91,7 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE>
   /**
    * Actual express router initialized in initialize method
    */
-  actualRouter?: Router;
+  actualRouter?: IRouter;
 
   /*
    * Router state
@@ -109,14 +125,17 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE>
    */
   private stateConverter: StateConverter<APP_STATE, ROUTER_STATE>;
 
+  private installedMiddlewares: SwizzyMiddlewareFunction[];
+
   constructor(props: IInternalWebRouterProps<APP_STATE, ROUTER_STATE>) {
     this.name = props.name;
-    this.logger = props.logger.clone({ ownerName: this.name });
+    this.logger = props.logger; //.clone({ ownerName: this.name });
     this.installedControllers = [];
     this.middleware = props.middleware ?? [];
     this.webControllerClasses = props.webControllerClasses;
-    this.path = props.path;
+    this.path = trimSlashes(props.path);
     this.stateConverter = props.stateConverter;
+    this.installedMiddlewares = [];
   }
 
   /**
@@ -180,7 +199,7 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE>
   ): Promise<Router> {
     const router = await Router();
     this.logger.debug(`Installing middleware`);
-    this.installMiddleware({ ...props, router, logger: this.logger });
+    await this.installMiddleware({ ...props, router, logger: this.logger });
     this.logger.debug(`Installed middleware`);
     return router;
   }
@@ -200,24 +219,83 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE>
   ) {
     const logger = this.logger;
     logger.debug(`Installing controller ${clazz.name}`);
+
     const webController = new clazz({
       logger: logger.clone({ owner: clazz.name }),
     });
 
     logger.debug(`Initializing controller`);
     await webController.initialize({ routerState: this.getState() });
+
     logger.debug("Initialized controller");
     const installableController = webController.installableController();
+
+    if (!this.actualRouter) {
+      throw new Error(`Unexpected error, actualRouter is not defined`);
+    }
+
+    //    actualMethod
     this.actualRouter[`${webController.method}`](
       path.join("/", installableController.action),
-      installableController.middleware,
+      [...installableController.middleware],
       installableController.controller,
     );
     this.installedControllers.push(webController);
     this.logger.debug(`Installed controller ${clazz.name}`);
     this.logger.debug(
-      `Installed webcontroller ${webController.action} - ${this.actualRouter[webController.method]} - ${installableController.controller}`,
+      `Installed webcontroller ${webController.action} - ${webController.name} - ${installableController.controller}`,
     );
+  }
+
+  uninstall(props: UninstallRouterProps): void {
+    const { app } = props;
+    const logger = this.logger ?? new BrowserLogger({});
+
+    this.uninstallControllers();
+    this.uninstallMiddleware();
+
+    let index = unuseRouter(app, this.router())! as number;
+    if (typeof index !== "number") {
+      throw new Error(
+        `Error uninsalling router ${this.name} as it was not found`,
+      );
+    }
+
+    logger.debug(`Uninstalled router ${this.router().name}`);
+    this.actualRouter == undefined;
+  }
+
+  private uninstallMiddleware() {
+    const logger = this.logger;
+    const router = this.router();
+    logger.error(`Uninstalling middleware from router ${router.name}`);
+    while (this.installedMiddlewares.length > 0) {
+      const middleware = this.installedMiddlewares.pop()!;
+
+      logger.debug(
+        `Uninstalling middleware ${middleware.name} from router ${router.name}`,
+      );
+      unuseMiddleware(router, middleware);
+      logger.debug(
+        `Uninstalled middleware ${middleware.name} from router ${router.name}`,
+      );
+    }
+  }
+
+  private uninstallControllers() {
+    const logger = this.logger;
+    logger.error(`Uninstalling controllers`);
+    const router = this.router();
+
+    while (this.installedControllers.length > 0) {
+      const webController = this.installedControllers.pop()!;
+      const { action: rawAction, method } = webController;
+      const path = trimSlashes(rawAction);
+      unuseController(router, { path, method });
+      logger.debug(
+        `uninstalled middleware ${webController.name} from router ${router.name}`,
+      );
+    }
   }
 
   router(): Router {
@@ -246,7 +324,9 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE>
     }
     for (const middle of middleware) {
       this.logger.debug(`Installing middleware ${middle.name}`);
-      await props.router.use(middle({ logger, state: this.getState() }));
+      const mid = middle({ logger, state: this.getState() });
+      this.installedMiddlewares.push(mid);
+      await props.router.use(mid);
       this.logger.debug(`Installed middlware ${middle.name}`);
     }
   }

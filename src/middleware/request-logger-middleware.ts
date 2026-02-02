@@ -1,6 +1,5 @@
 import { ILogger } from "@swizzyweb/swizzy-common";
-// @ts-ignore
-import { NextFunction, Request, Response } from "@swizzyweb/express";
+import { NextFunction, Request, Response } from "express";
 import { SwizzyMiddlewareProps } from "./swizzy-middleware.js";
 
 /**
@@ -30,7 +29,7 @@ export function RequestLoggerMiddleware<STATE>(
     };
   }
 
-  return function (req: Request, res: Response, next: NextFunction) {
+  return function (req: Request & any, res: Response, next: NextFunction) {
     const requestId = req.requestId ?? crypto.randomUUID();
     res.on("finish", () => {
       logger.info(
