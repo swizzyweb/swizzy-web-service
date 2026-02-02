@@ -246,3 +246,10 @@ State converters are used to transform state between each of the layers. WebRout
 # Notes
 
 Tests now require node 24 as of v0.5.0
+
+## Breaking changes
+
+v0.6.0
+
+- Upgrade express dependency to use the main 5.2.1 which removes the unuse method. Instead of using '@swizzyweb/express', just use 'express' in your swizzy web services.
+- Swerve will also need to be updated to a later version supporting using the default express package.

@@ -1,33 +1,26 @@
 import { ILogger } from "@swizzyweb/swizzy-common";
 
-import {
-  Application,
-  Router,
-  // @ts-ignore
-} from "@swizzyweb/express";
+import { Application, Router } from "express";
 
-import {
-  IWebRouter,
-  SwizzyWebRouterClass,
-  WebRouter,
-} from "../router/web-router.js";
+import { IWebRouter, SwizzyWebRouterClass } from "../router/web-router.js";
 import path from "path";
 import {
   SaveInstanceProps,
   IInternalWebServiceProps,
   UseRouterProps,
   UseRouterResult,
-  UninstallRouterProps,
+  UninstallWebServiceRouterProps,
 } from "./interface.js";
 import { assertOrThrow } from "../util/assertion-util.js";
 import { SwizzyMiddleware } from "../middleware/index.js";
 import { middlewaresToJson, middlewareToJson } from "../util/index.js";
+import { unuseMiddleware, unuseRouter } from "@swizzyweb/express-unuse";
+import { Middlewares } from "./types.js";
+import { trimSlashes } from "../util/trim-slashes.js";
 
 export interface IRunResult {}
 
-export interface IRunProps {
-  //app: Application;
-}
+export interface IRunProps {}
 
 export interface IWebService {
   /**
@@ -78,7 +71,7 @@ export abstract class WebService<APP_STATE> implements IWebService {
   private routerClasses: SwizzyWebRouterClass<APP_STATE, any>[];
   private installedRouters: IWebRouter<APP_STATE, any>[];
   private middleware: SwizzyMiddleware<APP_STATE>[];
-
+  private installedMiddleware: Middlewares[];
   /**
    * Constructor for WebService base class.
    * Note: For subclasses of this, it is recommended to use {@link IWebServiceProps}
@@ -89,15 +82,16 @@ export abstract class WebService<APP_STATE> implements IWebService {
     this.name = props.name;
     this.instanceId = crypto.randomUUID();
     this._isInstalled = false;
-    this.logger = props.logger.clone({ ownerName: this.name });
+    this.logger = props.logger; //.clone({ ownerName: this.name });
     this.routerClasses = props.routerClasses;
     this.app = props.app;
     this.port = props.port;
     this.packageName = props.packageName;
     this.state = props.state;
     this.installedRouters = [];
-    this.path = props.path;
+    this.path = trimSlashes(props.path);
     this.middleware = props.middleware ?? [];
+    this.installedMiddleware = [];
   }
   public async install(props: IRunProps): Promise<IRunResult> {
     const logger = this.logger;
@@ -191,13 +185,17 @@ export abstract class WebService<APP_STATE> implements IWebService {
     const expressRouter = instance.router();
 
     logger.debug(`Calling app.use(router) with ${instance.name}`);
+    const installedMiddleware: any[] = [];
     await this.app.use(
       path.join("/", this.path, "/", instance.path),
-      this.middleware.map((middle) =>
-        middle({ logger, state: this.getState() }),
-      ),
+      this.middleware.map((middle) => {
+        const mw = middle({ logger, state: this.getState() });
+        installedMiddleware.push(mw);
+        return mw;
+      }),
       expressRouter,
     );
+    this.installedMiddleware.push(...installedMiddleware);
     logger.debug(`Called app.use(router) with ${instance.name}`);
 
     return { expressRouter: expressRouter };
@@ -227,11 +225,12 @@ export abstract class WebService<APP_STATE> implements IWebService {
     const logger = this.logger;
 
     try {
-      logger.debug(`Uninstalling ${this.name}`);
+      logger.info(`Uninstalling ${this.name}`);
 
       logger.debug(`Uninstalling routers for ${this.name}`);
       await this.uninstallRouters();
       logger.debug(`Uninstalled routers for ${this.name}`);
+
       this._isInstalled = false;
 
       logger.debug(`Uninstalled ${this.name}`);
@@ -263,18 +262,30 @@ export abstract class WebService<APP_STATE> implements IWebService {
   }
 
   private async uninstallRouter(
-    props: UninstallRouterProps<APP_STATE, any>,
+    props: UninstallWebServiceRouterProps<APP_STATE, any>,
   ): Promise<void> {
     const logger = this.logger;
     const { router } = props;
     const app = this.app;
 
-    logger.debug(`Uninstalling router ${router.name}`);
-    const expressRouter = router.router();
-    logger.debug(`Unusing router ${router.name}`);
-    await app.unuse(path.join("/", this.path, "/", router.path), expressRouter);
-    logger.debug(`Unused router ${router.name}`);
+    logger.debug(`Uninstalling router and middleware for ${router.name}`);
+
+    logger.debug(`Uninstalling router middlewares for router ${router.name}`);
+    await this.uninstallMiddlewares();
+    logger.debug(`Uninstalled middleware for router ${router.name}`);
+
+    logger.debug(`Unuinstalling router ${router.name}`);
+    router.uninstall({ app });
     logger.debug(`Uninstalled router ${router.name}`);
+  }
+
+  async uninstallMiddlewares() {
+    const logger = this.logger;
+    logger.info(`Uninstsalling middleware`);
+    while (this.installedMiddleware.length > 0) {
+      const middleware = this.installedMiddleware.pop()!;
+      unuseMiddleware(this.app, middleware);
+    }
   }
 
   toJson(): {

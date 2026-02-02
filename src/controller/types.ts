@@ -5,7 +5,7 @@ import {
 } from "../middleware/index.js";
 import { StateConverter } from "../state/index.js";
 import { RequestMethod } from "./request-method.js";
-
+import { Request, Response } from "express";
 /**
  * Type definition declaring controller classes have constructors.
  */

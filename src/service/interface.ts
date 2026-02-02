@@ -1,9 +1,6 @@
-// @ts-ignore
-import express, { Application, Router } from "@swizzyweb/express";
+import { Application, Router } from "express";
 import { ILogger } from "@swizzyweb/swizzy-common";
 import { IWebRouter, SwizzyWebRouterClass } from "../router/web-router.js";
-import http from "http";
-import https from "https";
 import { IBaseUseUnuseProps } from "../common/index.js";
 import { SwizzyMiddleware } from "../middleware/index.js";
 
@@ -84,7 +81,7 @@ export interface UseRouterResult {
   expressRouter: Router;
 }
 
-export interface UninstallRouterProps<APP_STATE, ROUTER_STATE> {
+export interface UninstallWebServiceRouterProps<APP_STATE, ROUTER_STATE> {
   //UninstallRouterProps
   router: IWebRouter<APP_STATE, ROUTER_STATE>;
 }

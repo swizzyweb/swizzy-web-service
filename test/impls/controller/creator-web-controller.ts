@@ -1,14 +1,9 @@
 import {
-  //  IWebControllerInitProps,
   RequestMethod,
   WebController,
-  //  WebControllerFunction,
 } from "../../../dist/controller/index.js";
 import { DefaultStateExporter } from "../../../dist/state/index.js";
-// @ts-ignore
-import express from "@swizzyweb/express";
-//import { Request, Response, json } from "@swizzyweb/express";
-//import { TestRouterState } from "../state/test-router-state.ts";
+import express from "express";
 
 interface TestRouterState {}
 interface IWebControllerInitProps<T> {}
@@ -55,7 +50,7 @@ export class CreatorWebController extends WebController<
         });
       } catch (e) {
         //        console.error(e);
-        res.statusCode(503);
+        res.status(503);
         res.json({});
       }
     };

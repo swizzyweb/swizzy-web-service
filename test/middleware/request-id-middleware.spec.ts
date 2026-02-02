@@ -15,7 +15,7 @@ test("RequestId middleware tests", () => {
       logger: middlewareLogger,
       state: {},
     });
-    middleware(request, {}, () => {
+    middleware(request, {} as any, () => {
       expect(request.swizzy.requestId).toBeDefined();
       done();
     });
@@ -33,7 +33,7 @@ test("RequestId middleware tests", () => {
       logger: middlewareLogger,
       state: {},
     });
-    middleware(request, {}, () => {
+    middleware(request, {} as any, () => {
       expect(request.swizzy.requestId).toEqual(requestId);
       done();
     });

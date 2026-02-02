@@ -4,7 +4,7 @@ import { HelloWebController } from "./impls/controller/hello-web-controller.ts";
 import { NameWebController } from "./impls/controller/name-web-controller.ts";
 import { controllerLogger } from "./impls/router-logger.ts";
 // @ts-ignore
-import express from "@swizzyweb/express";
+import express from "express";
 import request from "supertest";
 import test from "node:test";
 import assert from "node:assert";

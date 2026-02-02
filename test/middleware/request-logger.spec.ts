@@ -1,7 +1,7 @@
 import expect from "expect";
 //import { BrowserLogger, ILogger } from "@swizzyweb/swizzy-common";
 // @ts-ignore
-import express from "@swizzyweb/express"; //, { Request, Response, Router }
+import express from "express"; //, { Request, Response, Router }
 import { info, log } from "node:console";
 import { RequestLoggerMiddleware } from "../../dist/middleware/request-logger-middleware.js";
 import request from "supertest";
