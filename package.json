@@ -1,6 +1,6 @@
 {
   "name": "@swizzyweb/swizzy-web-service",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Web service framework for swizzy dyn serve",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -34,7 +34,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@swizzyweb/express-unuse": "v1.0.1",
+    "@swizzyweb/express-unuse": "^1.0.1",
     "@swizzyweb/swizzy-common": "^0.3.3",
     "express": "^5.2.1",
     "winston": "^3.17.0",
