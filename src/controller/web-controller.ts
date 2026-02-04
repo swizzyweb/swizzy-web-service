@@ -57,7 +57,7 @@ export abstract class WebController<ROUTER_STATE, CONTROLLER_STATE>
     this.name = props.name;
     this.logger = props.logger.clone({ owner: this.name });
     this.middleware = props.middleware ?? [];
-    this.action = trimSlashes(props.action);
+    this.action = props.action;
     this.method = props.method;
     this.stateConverter = props.stateConverter;
   }

@@ -1,4 +1,8 @@
-import express, { Request, Response, NextFunction } from "express";
+// @deno-types="npm:@types/express@5"
+import { Request, Response, NextFunction } from "express";
+
+// @deno-types="npm:@types/express@5"
+import * as express from "express";
 import {
   SwizzyMiddleware,
   SwizzyMiddlewareFunction,

@@ -1,7 +1,6 @@
 import { ILogger } from "@swizzyweb/swizzy-common";
-import express, { NextFunction, Request, Response } from "express";
-import path from "path";
-import { SwizzyRequestMiddleware } from "./swizzy-request-middleware.js";
+// @deno-types="npm:@types/express@5"
+import { NextFunction, Request, Response } from "express";
 
 /**
  * Base middleware props
