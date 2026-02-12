@@ -3,7 +3,7 @@ import { ILogger } from "@swizzyweb/swizzy-common";
 import { Application, Router } from "express";
 
 import { IWebRouter, SwizzyWebRouterClass } from "../router/web-router.js";
-import path from "path";
+import path from "node:path";
 import {
   SaveInstanceProps,
   IInternalWebServiceProps,

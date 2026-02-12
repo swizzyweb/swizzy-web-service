@@ -9,7 +9,7 @@ import {
 } from "../middleware/index.js";
 import { IWebController, NewWebControllerClass } from "../controller/index.js";
 import { StateConverter } from "../state/index.js";
-import path from "path";
+import path from "node:path";
 import { middlewaresToJson, stateConverterToJson } from "../util/index.js";
 import {
   unuseRouter,
@@ -53,8 +53,10 @@ export interface IWebRouterProps<APP_STATE, ROUTER_STATE> {
 installedMiddlewares: (req: Request, res: Response, next: NextFunction) =>
   void [];
 
-export interface IInternalWebRouterProps<APP_STATE, ROUTER_STATE>
-  extends IWebRouterProps<APP_STATE, ROUTER_STATE> {
+export interface IInternalWebRouterProps<
+  APP_STATE,
+  ROUTER_STATE,
+> extends IWebRouterProps<APP_STATE, ROUTER_STATE> {
   name: string;
   webControllerClasses: NewWebControllerClass<ROUTER_STATE, any>[];
   path: string;
@@ -67,9 +69,10 @@ export interface IWebRouterInitProps<APP_STATE> {
   appState: APP_STATE;
 }
 
-export abstract class WebRouter<APP_STATE, ROUTER_STATE>
-  implements IWebRouter<APP_STATE, ROUTER_STATE>
-{
+export abstract class WebRouter<APP_STATE, ROUTER_STATE> implements IWebRouter<
+  APP_STATE,
+  ROUTER_STATE
+> {
   /**
    * Flag for if this is a webrouter, alwaus true for
    * all web routers

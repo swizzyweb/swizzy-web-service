@@ -17,8 +17,10 @@ test("RequestLoggerMiddleware tests", () => {
       error(d: any) {},
       debug(d: any) {},
       warn(d: any) {},
-      //      getLoggerProps: mock.fn(),
-      clone() {},
+      getLoggerProps: mock.fn(),
+      clone() {
+        return logger;
+      },
     };
     const infoSpy = mock.method(logger, "info", (d: any) => {});
     const warnSpy = mock.method(logger, "warn", (d: any) => {});
@@ -38,9 +40,12 @@ test("RequestLoggerMiddleware tests", () => {
     assert.deepStrictEqual(infoSpy.mock.calls[0].arguments, [
       `[req-${uuid}]: GET /home/home ::ffff:127.0.0.1`,
     ]);
-    assert.deepStrictEqual(infoSpy.mock.calls[1].arguments, [
-      `[res-${uuid}]: GET /home/home ::ffff:127.0.0.1 200`,
-    ]);
+
+    assert(
+      infoSpy.mock.calls[1].arguments[0].startsWith(
+        `[res-${uuid}]: GET /home/home ::ffff:127.0.0.1 200`,
+      ),
+    );
   });
 
   test.it("Should warn on no logger provided and do nothing", async () => {

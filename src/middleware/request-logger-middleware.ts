@@ -1,17 +1,23 @@
-import { ILogger } from "@swizzyweb/swizzy-common";
+import { ILogger, SwizzyWinstonLogger } from "@swizzyweb/swizzy-common";
 import { NextFunction, Request, Response } from "express";
 import { SwizzyMiddlewareProps } from "./swizzy-middleware.js";
 
 /**
  * RequestLoggerMiddleware props.
  */
-export interface RequestLoggerMiddlewareProps<STATE>
-  extends SwizzyMiddlewareProps<STATE> {
+export interface RequestLoggerMiddlewareProps<
+  STATE,
+> extends SwizzyMiddlewareProps<STATE> {
   logger: ILogger<any>;
   /**
    * WebService, WebRouter, or WebController state.
    */
   state: STATE;
+
+  /**
+   * Log level that logs should be written as.
+   */
+  logLevel?: string;
 }
 /**
  * Middleware to log request amd response information.
@@ -19,7 +25,7 @@ export interface RequestLoggerMiddlewareProps<STATE>
 export function RequestLoggerMiddleware<STATE>(
   props: RequestLoggerMiddlewareProps<STATE>,
 ) {
-  let { logger } = props;
+  let { logger, logLevel } = props;
   if (!logger) {
     console.warn(
       `WARN!!!!: Logger not provided for RequestLoggerMiddleware, middleware will be a no-op, this will only display once per usage...`,
@@ -29,12 +35,27 @@ export function RequestLoggerMiddleware<STATE>(
     };
   }
 
+  logLevel = logLevel ?? "info";
+  logger = logger.clone({ ...logger.getLoggerProps(), logLevel });
   return function (req: Request & any, res: Response, next: NextFunction) {
     const requestId = req.requestId ?? crypto.randomUUID();
+    const start = Date.now();
     res.on("finish", () => {
-      logger.info(
-        `[res-${requestId}]: ${req.method} ${req.originalUrl} ${req.ip} ${res.statusCode}`,
-      );
+      let end = Date.now();
+      let durationMs = end - start;
+      const statusString = `${res.statusCode}`;
+      const log = `[res-${requestId}]: ${req.method} ${req.originalUrl} ${req.ip} ${res.statusCode} ${durationMs}ms`;
+      if (statusString.startsWith("5")) {
+        logger.error(log);
+        return;
+      }
+
+      if (statusString.startsWith("4") && logLevel != "error") {
+        logger.warn(log);
+        return;
+      }
+
+      logger.info(log);
     });
 
     logger.info(
