@@ -1,4 +1,8 @@
-// AI slop
+/**
+ * Returns the current UTC time rounded down to the nearest hour,
+ * formatted as `YYYY-MM-DD HH:00 UTC`.
+ * Avoids `Date` object construction for performance.
+ */
 export function getIsoTimeQuick(): string {
   const nowMs = Date.now();
   const hourMs = 3600_000;
@@ -15,6 +19,10 @@ export function getIsoTimeQuick(): string {
   return formatted;
 }
 
+/**
+ * Returns the current UTC time rounded down to the nearest hour as an ISO 8601 string.
+ * Example output: `"2026-06-18T14:00:00.000Z"`.
+ */
 export function getIsoTime(): string {
   // Get current UTC time
   const now = new Date();

@@ -3,15 +3,18 @@ import { ILogger } from "@swizzyweb/swizzy-common";
 import { NextFunction, Request, Response } from "express";
 
 /**
- * Base middleware props
+ * Base props injected into every Swizzy middleware factory.
  */
 export interface SwizzyMiddlewareProps<STATE> {
+  /** Logger instance provided by the parent router or service. */
   logger: ILogger<any>;
+  /** Current state (service, router, or controller level) available to the middleware. */
   state: STATE;
 }
 
 /**
- * Middleware function for router or classes
+ * Standard Express-compatible middleware function.
+ * Receives request, response, and next callback.
  */
 export type SwizzyMiddlewareFunction = (
   req: Request,
@@ -20,7 +23,9 @@ export type SwizzyMiddlewareFunction = (
 ) => void;
 
 /**
- * Middleware for router or controllers
+ * A factory function that receives state and logger props and returns
+ * a `SwizzyMiddlewareFunction`.
+ * Register these on a `WebService`, `WebRouter`, or `WebController`.
  */
 export type SwizzyMiddleware<STATE> = (
   props: SwizzyMiddlewareProps<STATE>,

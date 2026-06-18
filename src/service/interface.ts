@@ -34,7 +34,7 @@ export interface IWebServiceProps<APP_STATE> {
 }
 
 /**
- * Internal properties for bash WebService.
+ * Internal properties for the base WebService class.
  */
 export interface IInternalWebServiceProps<APP_STATE>
   extends IWebServiceProps<APP_STATE> {
@@ -58,30 +58,40 @@ export interface IInternalWebServiceProps<APP_STATE>
    */
   packageName: string;
 
+  /** Middleware to apply to every router mounted by this service. */
   middleware: SwizzyMiddleware<APP_STATE>[];
 
   //  server: AnyServer;
 }
 
+/** Props for persisting a router instance inside the web service. */
 export interface SaveInstanceProps<INSTANCE, ROUTER> {
+  /** The web router instance. */
   instance: INSTANCE;
+  /** The underlying Express router. */
   router: ROUTER;
 }
 
+/** Base props shared by use/unuse router operations. */
 export interface UseUnuseProps<APP_STATE, ROUTER_STATE>
   extends IBaseUseUnuseProps<IWebRouter<APP_STATE, ROUTER_STATE>> {}
 
+/** Props for mounting a router onto the Express app. */
 export interface UseRouterProps<APP_STATE, ROUTER_STATE>
   extends UseUnuseProps<APP_STATE, ROUTER_STATE> {}
 
+/** Props for unmounting a router from the Express app. */
 export interface UnuseRouterProps<APP_STATE, ROUTER_STATE>
   extends UseUnuseProps<APP_STATE, ROUTER_STATE> {}
 
+/** Result returned after a router is mounted. */
 export interface UseRouterResult {
+  /** The underlying Express router that was mounted. */
   expressRouter: Router;
 }
 
+/** Props for uninstalling a router from the web service. */
 export interface UninstallWebServiceRouterProps<APP_STATE, ROUTER_STATE> {
-  //UninstallRouterProps
+  /** The web router to uninstall. */
   router: IWebRouter<APP_STATE, ROUTER_STATE>;
 }

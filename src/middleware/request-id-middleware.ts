@@ -18,7 +18,8 @@ export interface RequestIdMiddlewareProps<STATE>
 }
 
 /**
- * Adds a rqeuest id to the swizzy store.
+ * Adds a unique request ID to the swizzy store (`req.swizzy.requestId`).
+ * If a request ID already exists on the store it is left unchanged.
  */
 export function RequestIdMiddleware<STATE>(
   props: RequestIdMiddlewareProps<STATE>,

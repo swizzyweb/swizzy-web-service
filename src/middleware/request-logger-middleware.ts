@@ -20,7 +20,9 @@ export interface RequestLoggerMiddlewareProps<
   logLevel?: string;
 }
 /**
- * Middleware to log request amd response information.
+ * Middleware that logs incoming request and outgoing response information.
+ * Logs at `info` by default; escalates to `warn` for 4xx and `error` for 5xx responses.
+ * Falls back to a no-op if no logger is provided.
  */
 export function RequestLoggerMiddleware<STATE>(
   props: RequestLoggerMiddlewareProps<STATE>,

@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
-    "@types/node": "^20.12.8",
+    "@types/node": "^20.19.43",
     "@types/supertest": "^6.0.2",
     "@types/tcp-port-used": "^1.0.4",
     "@types/winston": "^2.4.4",

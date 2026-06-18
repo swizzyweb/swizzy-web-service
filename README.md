@@ -7,7 +7,7 @@ Swizzy web service is a library for creating self contained web services. The li
 ## Install via npm
 
 ```
-npm install --registry=https://npm.swizzyweb.com @swizzyweb/swizzy-web-service
+npm install @swizzyweb/swizzy-web-service
 ```
 
 # Creating your first web service
@@ -203,17 +203,17 @@ swerve
 
 # Docs
 
-https://swizzyweb.github.io/swizzy-web-service/
+<https://swizzyweb.github.io/swizzy-web-service/>
 
 # Sample apps
 
 ## Frontend template
 
-https://github.com/swizzyweb/swizzy-frontend-template-web-service
+<https://github.com/swizzyweb/swizzy-frontend-template-web-service>
 
 ## Backend template
 
-https://github.com/swizzyweb/swizzy-backend-template-web-service
+<https://github.com/swizzyweb/swizzy-backend-template-web-service>
 
 # Architecture
 

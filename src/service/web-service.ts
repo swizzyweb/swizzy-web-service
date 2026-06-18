@@ -18,8 +18,10 @@ import { unuseMiddleware, unuseRouter } from "@swizzyweb/express-unuse";
 import { Middlewares } from "./types.js";
 import { trimSlashes } from "../util/trim-slashes.js";
 
+/** Result returned after a successful `install` or `uninstall` call. */
 export interface IRunResult {}
 
+/** Options passed to `install` and `uninstall`. */
 export interface IRunProps {}
 
 export interface IWebService {
@@ -50,7 +52,15 @@ export interface IWebService {
    */
   isInstalled(): boolean;
 
+  /**
+   * Serializes the web service to a plain JSON-compatible object.
+   * @returns JSON representation of the web service
+   */
   toJson(): any;
+  /**
+   * Returns a JSON string representation of the web service.
+   * @returns stringified JSON of the web service
+   */
   toString(): string;
 }
 /**
@@ -173,6 +183,10 @@ export abstract class WebService<APP_STATE> implements IWebService {
     logger.debug(`Installed router ${router.name}`);
   }
 
+  /**
+   * Returns the current application state shared across routers.
+   * @returns the app state instance
+   */
   protected getState(): APP_STATE {
     return this.state;
   }
@@ -279,6 +293,9 @@ export abstract class WebService<APP_STATE> implements IWebService {
     logger.debug(`Uninstalled router ${router.name}`);
   }
 
+  /**
+   * Removes all currently installed middleware from the Express app.
+   */
   async uninstallMiddlewares() {
     const logger = this.logger;
     logger.info(`Uninstsalling middleware`);
@@ -288,6 +305,11 @@ export abstract class WebService<APP_STATE> implements IWebService {
     }
   }
 
+  /**
+   * Serializes the web service to a plain JSON-compatible object.
+   * Logger and state are omitted for safety.
+   * @returns JSON representation of this web service
+   */
   toJson(): {
     name: string;
     instanceId: string;
@@ -319,15 +341,27 @@ export abstract class WebService<APP_STATE> implements IWebService {
       middleware,
     };
   }
+  /**
+   * Returns a JSON string representation of this web service.
+   * @returns stringified JSON of the web service
+   */
   toString(): string {
     return JSON.stringify({ service: this.toJson() });
   }
 }
+
+/** Props for installing middleware onto an Express Application. */
 export interface IInstallMiddlewareProps {
+  /** The Express application instance. */
   app: Application;
+  /** Logger instance. */
   logger: ILogger<any>;
 }
+
+/** Props for installing middleware onto an Express Router. */
 export interface IInstallMiddlewareToRouterProps {
+  /** The Express router instance. */
   router: Router;
+  /** Logger instance. */
   logger: ILogger<any>;
 }

@@ -11,10 +11,10 @@ import {
 import path from "path";
 
 /**
- * Adds two numbers together.
+ * Creates a `SwizzyMiddleware` factory that serves static assets from a local directory.
  *
- * @param {{string} staticAssetPath - path to static assets directory} props
- * @returns {SwizzyMiddleware} SwizzyStaticMiddleware for hosting static assets as url
+ * @param props.staticAssetsPath - absolute or relative path to the static assets directory
+ * @returns a `SwizzyMiddleware` that serves files via Express's `static()` handler
  */
 export function SwizzyStatic<STATE>(props: {
   staticAssetsPath: string;

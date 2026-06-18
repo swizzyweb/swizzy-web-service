@@ -20,52 +20,105 @@ import { trimSlashes } from "../util/trim-slashes.js";
 
 const Router = express.Router;
 
+/**
+ * Constructor signature for a web router class.
+ * @template APP_STATE Application-level state type.
+ * @template ROUTER_STATE Router-level state type.
+ */
 export type NewWebRouterClass<APP_STATE, ROUTER_STATE> = new (
   props: IWebRouterProps<APP_STATE, ROUTER_STATE>,
 ) => IWebRouter<APP_STATE, ROUTER_STATE>;
 
+/** Brand type used to identify classes as web routers at the type level. */
 export type isWebRouter = { isWebRouter: boolean };
+
+/**
+ * A web router constructor that also carries the `isWebRouter` brand.
+ * Use this type when registering routers with a `WebService`.
+ */
 export type SwizzyWebRouterClass<APP_STATE, ROUTER_STATE> = NewWebRouterClass<
   APP_STATE,
   ROUTER_STATE
 > &
   isWebRouter;
 
+/** Props required when uninstalling a router from the Express app. */
 export interface UninstallRouterProps {
+  /** The Express application to remove the router from. */
   app: Application;
 }
 
+/** Public interface for a Swizzy web router. */
 export interface IWebRouter<APP_STATE, ROUTER_STATE> {
+  /** Unique display name for this router. */
   readonly name: string;
+  /**
+   * Initializes the router, setting up controllers and middleware.
+   * Must be called before `router()`.
+   * @param props initialization options including app state
+   */
   initialize(props: IWebRouterInitProps<APP_STATE>): Promise<void>;
+  /**
+   * Removes this router and all of its controllers/middleware from the app.
+   * @param props contains the Express app instance
+   */
   uninstall(props: UninstallRouterProps): void;
-  router(): any; //Router;
+  /**
+   * Returns the underlying Express router.
+   * Throws if `initialize` has not been called.
+   */
+  router(): any;
+  /**
+   * Returns the current router-level state.
+   * @returns the router state or an empty object if not yet initialized
+   */
   getState(): ROUTER_STATE;
+  /** URL path prefix for all controllers mounted on this router. */
   path: string;
+  /**
+   * Serializes the router to a plain JSON-compatible object.
+   * @returns JSON representation of this router
+   */
   toJson(): any;
+  /**
+   * Returns a JSON string representation of this router.
+   * @returns stringified JSON of the router
+   */
   toString(): string;
 }
 
+/** Base constructor props for a web router. */
 export interface IWebRouterProps<APP_STATE, ROUTER_STATE> {
+  /** Logger instance provided by the parent web service. */
   logger: ILogger<any>;
 }
 
 installedMiddlewares: (req: Request, res: Response, next: NextFunction) =>
   void [];
 
+/**
+ * Internal construction props for the base `WebRouter` class.
+ * Extend this interface when building concrete router implementations.
+ */
 export interface IInternalWebRouterProps<
   APP_STATE,
   ROUTER_STATE,
 > extends IWebRouterProps<APP_STATE, ROUTER_STATE> {
+  /** Display name for this router. */
   name: string;
+  /** Controller classes to mount on this router. */
   webControllerClasses: NewWebControllerClass<ROUTER_STATE, any>[];
+  /** URL path prefix for all controllers on this router. */
   path: string;
+  /** Converts the parent app state into the router-level state. */
   stateConverter: StateConverter<APP_STATE, ROUTER_STATE>;
-
+  /** Optional middleware applied to every request through this router. */
   middleware?: SwizzyMiddleware<ROUTER_STATE>[];
 }
 
+/** Props passed to `initialize` when mounting a router. */
 export interface IWebRouterInitProps<APP_STATE> {
+  /** The application-level state provided by the parent web service. */
   appState: APP_STATE;
 }
 
@@ -177,6 +230,7 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE> implements IWebRouter<
       };
     }
   }
+  /** Returns `true` if the router has already been initialized. */
   isInitialized() {
     if (this.installedControllers.length > 0) {
       this.logger.warn(
@@ -299,6 +353,10 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE> implements IWebRouter<
     }
   }
 
+  /**
+   * Returns the underlying Express router.
+   * @throws if `initialize` has not been called yet
+   */
   router(): IRouter {
     if (this.actualRouter) {
       return this.actualRouter;
@@ -310,6 +368,10 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE> implements IWebRouter<
     }
   }
 
+  /**
+   * Returns the current router-level state.
+   * @returns the router state, or an empty object if not yet initialized
+   */
   getState(): ROUTER_STATE {
     return this.state ?? ({} as ROUTER_STATE);
   }
@@ -332,10 +394,19 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE> implements IWebRouter<
     }
   }
 
+  /**
+   * Returns the middleware list configured for this router.
+   * Override to provide a dynamic middleware list.
+   * @returns array of swizzy middleware factories
+   */
   protected getMiddleware(): SwizzyMiddleware<ROUTER_STATE>[] {
     return this.middleware;
   }
 
+  /**
+   * Serializes the router to a plain JSON-compatible object.
+   * @returns JSON representation of this router
+   */
   toJson() {
     const middleware = middlewaresToJson(this.middleware);
     const controllers = this.installedControllers.map((c) => {
@@ -353,16 +424,25 @@ export abstract class WebRouter<APP_STATE, ROUTER_STATE> implements IWebRouter<
     };
   }
 
+  /**
+   * Returns a JSON string representation of this router.
+   * @returns stringified JSON of the router
+   */
   toString(): string {
     return JSON.stringify(this.toJson());
   }
 }
 
+/** Props for operations that need access to the app-level state. */
 export interface IPackageStateProps<APP_STATE> {
+  /** The application-level state. */
   appState: APP_STATE;
 }
 
+/** Props for the `installMiddleware` method on `WebRouter`. */
 export interface IInstallRouterMiddlewareProps {
+  /** The Express router onto which middleware will be mounted. */
   router: IRouter;
+  /** Logger instance. */
   logger: ILogger<any>;
 }

@@ -96,6 +96,10 @@ export abstract class WebController<ROUTER_STATE, CONTROLLER_STATE>
     },
   ): Promise<WebControllerFunction>;
 
+  /**
+   * Returns the initialized controller function.
+   * @throws if `initialize` has not been called yet
+   */
   controller(): WebControllerFunction {
     if (this.actualController) {
       return this.actualController;
@@ -108,6 +112,10 @@ export abstract class WebController<ROUTER_STATE, CONTROLLER_STATE>
     }
   }
 
+  /**
+   * Returns an `InstallableController` descriptor used by the router to mount
+   * this controller onto an Express router.
+   */
   public installableController(): InstallableController<CONTROLLER_STATE> {
     return {
       action: `${this.action}`,
@@ -116,10 +124,18 @@ export abstract class WebController<ROUTER_STATE, CONTROLLER_STATE>
     };
   }
 
+  /**
+   * Returns the current controller-level state, or `undefined` if not yet initialized.
+   */
   protected getState(): CONTROLLER_STATE | undefined {
     return this.state;
   }
 
+  /**
+   * Returns the resolved middleware functions to be applied before this controller.
+   * Each `SwizzyMiddleware` factory is invoked with the current state and logger.
+   * @returns array of Express middleware functions
+   */
   public getMiddleware(): SwizzyMiddlewareFunction[] {
     const state = this.getState()!;
     const logger = this.logger;
@@ -130,6 +146,11 @@ export abstract class WebController<ROUTER_STATE, CONTROLLER_STATE>
     return mappedMiddleware;
   }
 
+  /**
+   * Serializes the controller to a plain JSON-compatible object.
+   * Logger is omitted for safety.
+   * @returns JSON representation of this controller
+   */
   toJson() {
     const middleware = middlewaresToJson(this.middleware);
 
@@ -144,6 +165,10 @@ export abstract class WebController<ROUTER_STATE, CONTROLLER_STATE>
     };
   }
 
+  /**
+   * Returns a JSON string representation of this controller.
+   * @returns stringified JSON of the controller
+   */
   toString(): string {
     return JSON.stringify(this.toJson());
   }

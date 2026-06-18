@@ -33,13 +33,34 @@ export type WebControllerFunction = (req: Request, res: Response) => void;
  * Swizzy web controller interface.
  */
 export interface IWebController<ROUTER_STATE, CONTROLLER_STATE> {
+  /** Display name for this controller. */
   name: string;
+  /** URL segment appended to the router path for this controller, e.g. `/users`. */
   action: string;
+  /** HTTP method this controller responds to. */
   method: RequestMethod;
+  /**
+   * Initializes the controller with the router-level state.
+   * Must be called before `controller()`.
+   * @param props contains the parent router state
+   */
   initialize(props: IWebControllerInitProps<ROUTER_STATE>): Promise<void>;
-  controller(): WebControllerFunction; //Controller;
+  /**
+   * Returns the initialized Express handler function.
+   * @throws if `initialize` has not been called yet
+   */
+  controller(): WebControllerFunction;
+  /**
+   * Returns the installable descriptor used by the router to mount this controller.
+   */
   installableController(): InstallableController<CONTROLLER_STATE>;
+  /**
+   * Serializes the controller to a plain JSON-compatible object.
+   */
   toJson(): any;
+  /**
+   * Returns a JSON string representation of this controller.
+   */
   toString(): any;
 }
 
@@ -76,11 +97,11 @@ export interface IInternalWebControllerProps<ROUTER_STATE, CONTROLLER_STATE>
 }
 
 /**
- * Protperties pass to intiailize the controller.
+ * Properties passed to initialize the controller.
  */
 export interface IWebControllerInitProps<ROUTER_STATE> {
   /**
-   * Parent router state.
+   * Parent router state provided during initialization.
    */
   routerState: ROUTER_STATE;
 }
