@@ -45,21 +45,16 @@ test.it("Should install WebRouter", async () => {
   await webservice.install({});
 });
 
-test.it(
-  "Should throw on install WebRouter when already installed",
-  async () => {
-    const webservice: any = new WebRouterWebService(args);
-    await webservice.install({});
+test.it("Should throw on install WebRouter when already installed", async () => {
+  const webservice: any = new WebRouterWebService(args);
+  await webservice.install({});
 
-    try {
-      await webservice.install({});
-    } catch (e: any) {
-      expect(e.message).toEqual(
-        `Service ${WebRouterWebService.name} is already installed`,
-      );
-    }
-  },
-);
+  try {
+    await webservice.install({});
+  } catch (e: any) {
+    expect(e.message).toEqual(`Service ${WebRouterWebService.name} is already installed`);
+  }
+});
 
 test.it("Should uninstall WebRouter", async () => {
   const webservice: any = new WebRouterWebService(args);
@@ -72,9 +67,7 @@ test.it("Should throw on uninstall when not installed", async () => {
   try {
     await webservice.uninstall({});
   } catch (e: any) {
-    expect(e.message).toEqual(
-      `Failed to uninstall non installed service ${webservice.name}`,
-    );
+    expect(e.message).toEqual(`Failed to uninstall non installed service ${webservice.name}`);
   }
 });
 
@@ -239,6 +232,6 @@ test.it("Should toString without failing", async () => {
   await webService.install({});
   webService.toString();
   expect(webService.toString()).toEqual(
-    `{"service":{"name":"WebRouterWebService","instanceId":"${webService.instanceId}","isInstalled":true,"port":3000,"packageName":"@my-namespace/web-router-web-service","path":"webservice","installedRouters":[{"name":"MyFirstWebRouter","webControllerClasses":[null,null,null],"installedControllers":[{"name":"NameController","action":"name","method":"post","middleware":[{"name":"json"}],"stateConverter":{"name":"DefaultStateExporter"}},{"name":"HelloController","action":"hello","method":"get","middleware":[],"stateConverter":{"name":"DefaultStateExporter"}},{"name":"CreatorController","action":"creator","method":"get","middleware":[{"name":"json"}],"stateConverter":{"name":"DefaultStateExporter"}}],"path":"api","middleware":[],"stateConverter":{"name":"DefaultStateExporter"}}],"middleware":[{"name":"SwizzyRequestMiddlewareFunction"},{"name":"RequestIdMiddleware"},{"name":"RequestLoggerMiddleware"}]}}`,
+    `{"service":{"name":"WebRouterWebService","instanceId":"${webService.instanceId}","isInstalled":true,"port":3000,"packageName":"@my-namespace/web-router-web-service","path":"webservice","installedRouters":[{"name":"MyFirstWebRouter","webControllerClasses":[null,null,null],"installedControllers":[{"name":"NameController","action":"name","method":"post","middleware":[{"name":"SwizzyJsonMiddleware"}],"stateConverter":{"name":"DefaultStateExporter"}},{"name":"HelloController","action":"hello","method":"get","middleware":[],"stateConverter":{"name":"DefaultStateExporter"}},{"name":"CreatorController","action":"creator","method":"get","middleware":[{"name":"SwizzyJsonMiddleware"}],"stateConverter":{"name":"DefaultStateExporter"}}],"path":"api","middleware":[],"stateConverter":{"name":"DefaultStateExporter"}}],"middleware":[{"name":"SwizzyRequestMiddlewareFunction"},{"name":"RequestIdMiddleware"},{"name":"RequestLoggerMiddleware"}]}}`,
   );
 });

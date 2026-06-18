@@ -1,10 +1,27 @@
 {
   "name": "@swizzyweb/swizzy-web-service",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Web service framework for swizzy dyn serve",
+  "keywords": [
+    "dyn",
+    "serve",
+    "service",
+    "swizzy",
+    "web"
+  ],
+  "homepage": "https://github.com/swizzyweb/swizzy-web-service#readme",
+  "bugs": {
+    "url": "https://github.com/swizzyweb/swizzy-web-service/issues"
+  },
+  "license": "Apache-2.0",
+  "author": "WannaWatchMeCode",
+  "repository": {
+    "type": "git",
+    "url": "https://git.swizzyweb.com/swizzyweb/swizzy-web-service.git"
+  },
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "type": "module",
   "scripts": {
     "build": "tsc --project ./tsconfig.build.json",
     "clean": "rm -rf ./dist ./node_modules",
@@ -15,8 +32,13 @@
     "lint:fix": "eslint . --fix",
     "docs": "npx typedoc src/index.ts"
   },
-  "author": "WannaWatchMeCode",
-  "license": "Apache-2.0",
+  "dependencies": {
+    "@swizzyweb/express-unuse": "^1.0.2",
+    "@swizzyweb/swizzy-common": "^0.3.5",
+    "express": "^5.2.1",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^20.12.8",
@@ -30,30 +52,7 @@
     "expect": "^30.0.5",
     "prettier": "^3.3.3",
     "supertest": "^7.1.0",
-    "ts-jest": "^29.2.5",
     "typedoc": "^0.28.10",
     "typescript": "^5.4.5"
-  },
-  "dependencies": {
-    "@swizzyweb/express-unuse": "^1.0.2",
-    "@swizzyweb/swizzy-common": "^0.3.5",
-    "express": "^5.2.1",
-    "winston": "^3.17.0",
-    "winston-daily-rotate-file": "^5.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://git.swizzyweb.com/swizzyweb/swizzy-web-service.git"
-  },
-  "keywords": [
-    "swizzy",
-    "web",
-    "service",
-    "dyn",
-    "serve"
-  ],
-  "bugs": {
-    "url": "https://github.com/swizzyweb/swizzy-web-service/issues"
-  },
-  "homepage": "https://github.com/swizzyweb/swizzy-web-service#readme"
+  }
 }

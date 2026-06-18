@@ -1,7 +1,5 @@
-import {
-  RequestMethod,
-  WebController,
-} from "../../../dist/controller/index.js";
+import { RequestMethod, WebController } from "../../../dist/controller/index.js";
+import { SwizzyJsonMiddleware } from "../../../dist/middleware/swizzy-json-middleware.js";
 import { DefaultStateExporter } from "../../../dist/state/state-converter.js";
 import express from "express";
 
@@ -13,10 +11,7 @@ export interface NameWebControllerState {
   currentUserName?: string;
 }
 
-export class NameWebController extends WebController<
-  TestRouterState,
-  NameWebControllerState
-> {
+export class NameWebController extends WebController<TestRouterState, NameWebControllerState> {
   constructor(props: any) {
     super({
       name: "NameController",
@@ -24,7 +19,7 @@ export class NameWebController extends WebController<
       method: RequestMethod.post,
       action: "name",
       logger: props.logger,
-      middleware: [...(props.middleware ?? [express.json])],
+      middleware: [...(props.middleware ?? [SwizzyJsonMiddleware])],
     });
   }
 
@@ -33,10 +28,7 @@ export class NameWebController extends WebController<
   ): Promise<WebControllerFunction> {
     const { logger } = this;
     const getState = this.getState.bind(this);
-    return async function NameController(
-      req: express.Request,
-      res: express.Response,
-    ) {
+    return async function NameController(req: express.Request, res: express.Response) {
       logger.info("Name controller entered");
       //console.error(
       //  `Hit name controller with body: ${JSON.stringify(req.body)}`,

@@ -1,7 +1,5 @@
-import {
-  RequestMethod,
-  WebController,
-} from "../../../dist/controller/index.js";
+import { RequestMethod, WebController } from "../../../dist/controller/index.js";
+import { SwizzyJsonMiddleware } from "../../../dist/middleware/swizzy-json-middleware.js";
 import { DefaultStateExporter } from "../../../dist/state/index.js";
 import express from "express";
 
@@ -26,7 +24,7 @@ export class CreatorWebController extends WebController<
       action: "creator",
       method: RequestMethod.get,
       logger: props.logger,
-      middleware: [...(props.middleware ?? []), express.json],
+      middleware: [...(props.middleware ?? []), SwizzyJsonMiddleware],
     });
   }
 
@@ -36,10 +34,7 @@ export class CreatorWebController extends WebController<
     const logger = this.logger;
     logger.debug("Got init web controller");
     const getState = this.getState.bind(this);
-    return function creatorController(
-      req: express.Request,
-      res: express.Response,
-    ) {
+    return function creatorController(req: express.Request, res: express.Response) {
       logger.error("Create controller entered");
       //res.send("hello");
       //return;
